@@ -19,11 +19,9 @@ export function Auth({ onClose }: { onClose: () => void }) {
         options: { redirectTo: location.origin },
       });
       if (error) throw error;
-    } catch (failure) {
+    } catch {
       setMessage(
-        failure instanceof Error
-          ? failure.message
-          : "Could not open Google sign-in. Please try again.",
+        "Could not open Google sign-in. Check your connection and try again. Your saved progress is still on this device.",
       );
     } finally {
       setBusy(false);

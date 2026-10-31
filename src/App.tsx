@@ -414,6 +414,27 @@ export default function App() {
               </button>
             </div>
           )}
+          {learner.authError && (
+            <div className="notice app-notice" role="alert">
+              <span>{learner.authError}</span>
+              <button
+                className="text-button"
+                onClick={() => {
+                  learner.clearAuthError();
+                  setAuth(true);
+                }}
+              >
+                Try sign-in again
+              </button>
+              <button
+                className="icon-button"
+                aria-label="Dismiss sign-in notice"
+                onClick={learner.clearAuthError}
+              >
+                <X size={16} />
+              </button>
+            </div>
+          )}
           {learner.error && (
             <div className="notice app-notice" role="alert">
               <span>{learner.error}</span>

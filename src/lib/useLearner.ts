@@ -5,6 +5,11 @@ import { emptyState, isLearnerState, mergeStates } from "./learning";
 import { supabase } from "./supabase";
 import { disconnectAI } from "./ai";
 import { saveLearnerSnapshot } from "./sync";
+import {
+  authCallbackMessage,
+  cleanAuthCallbackUrl,
+  inspectAuthCallback,
+} from "./authCallback";
 
 const key = (id: string) => `verbum.learner.v1.${id}`;
 function read(id: string): LearnerState | null {
@@ -42,6 +47,10 @@ export function useLearner() {
   const [ready, setReady] = useState(!supabase);
   const [sync, setSync] = useState("Saved on this device");
   const [error, setError] = useState("");
+  const [authError, setAuthError] = useState("");
+  const [authCallback] = useState(() =>
+    inspectAuthCallback(new URL(location.href)),
+  );
   const [retry, setRetry] = useState(0);
   const [saveTick, setSaveTick] = useState(0);
   const identity = useRef("guest");
@@ -56,6 +65,30 @@ export function useLearner() {
   const signOutNotice = useRef("");
   latest.current = state;
   readyRef.current = ready;
+
+  useEffect(() => {
+    if (!supabase || !authCallback.present) return;
+    let active = true;
+    const finish = (failed: boolean) => {
+      if (!active) return;
+      const current = new URL(location.href);
+      // With no PKCE verifier (for example, a different browser), the SDK may
+      // ignore the code without returning an error. An unconsumed code failed.
+      const unconsumedCode =
+        authCallback.hasCode && inspectAuthCallback(current).hasCode;
+      setAuthError(authCallbackMessage(authCallback, failed || unconsumedCode));
+      history.replaceState(history.state, "", cleanAuthCallbackUrl(current));
+    };
+    // getSession() does not expose callback initialization errors. Observe the
+    // SDK's existing initialization promise without exchanging the code twice.
+    void supabase.auth
+      .initialize()
+      .then(({ error: failure }) => finish(Boolean(failure)))
+      .catch(() => finish(true));
+    return () => {
+      active = false;
+    };
+  }, [authCallback]);
 
   useEffect(() => {
     if (!supabase) return;
@@ -152,8 +185,9 @@ export function useLearner() {
       setReady(true);
     }
 
-    const { data } = client.auth.onAuthStateChange((_event, session) => {
+    const { data } = client.auth.onAuthStateChange((event, session) => {
       authEvents++;
+      if (event === "SIGNED_IN") setAuthError("");
       setTimeout(() => {
         if (!cancelled) void load(session?.user ?? null);
       }, 0);
@@ -163,13 +197,18 @@ export function useLearner() {
       .getSession()
       .then(({ data: sessionData, error: authError }) => {
         if (cancelled || authEvents !== initialAuthEvents) return;
-        if (authError) setError(authError.message);
+        if (authError)
+          setAuthError(
+            "Your account could not be restored. Please sign in again. Your saved progress is still on this device.",
+          );
         void load(sessionData.session?.user ?? null);
       })
       .catch(() => {
         if (!cancelled && authEvents === initialAuthEvents) {
           void load(null);
-          setError("Your account could not be restored. Please sign in again.");
+          setAuthError(
+            "Your account could not be restored. Please sign in again. Your saved progress is still on this device.",
+          );
         }
       });
     return () => {
@@ -412,6 +451,8 @@ export function useLearner() {
     ready,
     sync,
     error,
+    authError,
+    clearAuthError: () => setAuthError(""),
     retrySync,
     signOut,
     deleteAccount,
