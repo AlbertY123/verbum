@@ -795,6 +795,9 @@ export default function App() {
                 personal or sensitive information into practice sentences.
                 Verbum is designed for secondary and university students.
               </p>
+              <p>
+                <a href="/privacy.html">Read the full privacy notice</a>
+              </p>
             </div>
           ) : (
             <div className="prose">
