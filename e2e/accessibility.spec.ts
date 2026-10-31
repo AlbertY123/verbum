@@ -5,6 +5,7 @@ for (const theme of ["light", "dark"]) {
   for (const route of [
     "today",
     "library",
+    "practice",
     "writing",
     "typing",
     "progress",

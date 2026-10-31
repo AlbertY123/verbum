@@ -9,7 +9,9 @@
 - Daily recall, meaning cards, multiple-choice or typed sentence gaps, and adaptive spaced review. Misses return in 10 minutes; successful reviews increase the interval. A correct flashcard is not presented as proof of writing mastery.
 - Searchable and filterable library with bookmarks and detailed word cards.
 - Guided writing using fictional source material, an explicit analytical task, sentence stems, a self-assessment checklist and a persistent writing journal.
-- Sentence typing with accuracy/speed feedback and a comprehension check before recording practice.
+- Inline sentence typing with a moving caret, in-place error feedback, accuracy/speed feedback and a comprehension check before recording practice.
+- Word choice and sentence repair: 40 authored questions teach precise meaning, appropriate claims and natural collocations through five-question sessions with explanations for every option.
+- A single Practice hub groups guided writing, sentence typing, word choice and sentence repair; completed sessions count towards daily activity and streaks.
 - Real progress statistics, local-date streaks, activity calendar and category progress.
 - Guest/device mode, Supabase Google sign-in, account sync, progress backup/import and permanent account deletion. Email/password and recovery are available only when the operator enables production email delivery.
 - Optional OpenRouter PKCE account linking or an OpenAI API key. Users select a model and pay their own provider. AI writing feedback and reviewed custom vocabulary packs are available; the core learning experience needs no AI.

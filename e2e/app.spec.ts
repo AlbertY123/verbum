@@ -90,11 +90,9 @@ test("library search, difficulty, categories and bookmarks work together", async
     .locator(".category-tabs")
     .getByRole("button", { name: word.category, exact: true })
     .click();
-  const card = page
-    .locator(".word-card")
-    .filter({
-      has: page.getByRole("heading", { name: word.word, exact: true }),
-    });
+  const card = page.locator(".word-card").filter({
+    has: page.getByRole("heading", { name: word.word, exact: true }),
+  });
   await expect(card).toHaveCount(1);
   await card
     .getByRole("button", { name: `Save ${word.word}`, exact: true })
@@ -113,7 +111,7 @@ test("library search, difficulty, categories and bookmarks work together", async
     page.getByRole("heading", { name: "No words found." }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Clear filters" }).click();
-  await expect(page.locator(".word-card")).toHaveCount(36);
+  await expect(page.locator(".word-card")).toHaveCount(24);
   await page.reload();
   await page.getByRole("button", { name: /^Saved words/ }).click();
   await expect(page.locator(".word-card")).toHaveCount(1);
@@ -162,7 +160,7 @@ test("typing requires the full sentence and a comprehension answer before record
   await input.pressSequentially("!");
   await input.press("Backspace");
   await input.pressSequentially(word.example, { delay: 1 });
-  await expect(input).toBeDisabled();
+  await expect(input).toHaveAttribute("readonly", "");
   await expect(
     page.getByRole("button", { name: "Check understanding" }),
   ).toBeDisabled();
@@ -270,7 +268,7 @@ test("StrictMode restores a cloud learner on a fresh device without replacing pr
   await expect(
     page.getByRole("heading", { name: "Find the words, Cloud learner." }),
   ).toBeVisible();
-  await expect(page.locator(".daily-mini")).toContainText("7 new words");
+  await expect(page.locator(".daily-goal")).toContainText("0 / 7 new words");
   const restored = await page.evaluate(() =>
     JSON.parse(
       localStorage.getItem("verbum.learner.v1.cloud-test-user") || "null",

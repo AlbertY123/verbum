@@ -1,6 +1,6 @@
 ﻿# AI connections
 
-AI is optional. Bundled vocabulary, review scheduling, flashcards, sentence gaps and typing practice run without a paid provider. There is no operator-funded inference endpoint or shared inference key.
+AI is optional. Bundled vocabulary, review scheduling, flashcards, sentence gaps, guided writing, typing, word choice and sentence repair run without a paid provider. There is no operator-funded inference endpoint or shared inference key.
 
 ## OpenRouter
 
@@ -35,7 +35,7 @@ Session storage is accessible to same-origin JavaScript. Keep the CSP restrictiv
 
 ## Generated content
 
-Word generation and feedback are validated for field shapes, lengths, categories, duplicate words, HTML and required explanations. Validation cannot guarantee educational accuracy: users preview generated entries before adding them. Requests contain only the relevant topic, target word, scenario and sentence, not account identity or the entire learning history. Manually prepared word JSON can also be imported through the same validator.
+Word generation and feedback are validated for field shapes, lengths, categories, duplicate words, HTML and required explanations. Validation cannot guarantee educational accuracy: users preview generated entries before adding them. Requests contain only the relevant topic, target word, scenario and sentence, not account identity or the entire learning history.
 
 ## Browser module contract
 

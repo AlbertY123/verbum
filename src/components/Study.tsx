@@ -6,7 +6,6 @@ import {
   CheckCircle2,
   Lightbulb,
   RotateCcw,
-  Sparkles,
 } from "lucide-react";
 import type { LearnerState, Rating, Word } from "../types";
 import { getQueue, normaliseAnswer } from "../lib/learning";
@@ -315,10 +314,6 @@ export function Study({
           </>
         )}
       </article>
-      <p className="session-note">
-        <Sparkles size={14} /> Small steps, spaced out. That’s how words stay
-        with you.
-      </p>
     </section>
   );
 }

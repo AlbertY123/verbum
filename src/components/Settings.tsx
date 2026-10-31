@@ -18,7 +18,6 @@ import {
   generateWords,
   getAIConnection,
   listAIModels,
-  parseCustomWords,
   setAIModel,
   type AIModel,
 } from "../lib/ai";
@@ -54,7 +53,6 @@ export function Settings({
   const [request, setRequest] = useState(
     "Precise verbs for analysing how an author challenges social expectations",
   );
-  const [raw, setRaw] = useState("");
   const [candidates, setCandidates] = useState<Word[]>([]);
   const [deleteText, setDeleteText] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -130,11 +128,10 @@ export function Settings({
     <>
       <div className="page-heading">
         <div>
-          <span className="eyebrow">MAKE ROOM FOR YOUR ROUTINE</span>
           <h1>
             Your preferences<span>.</span>
           </h1>
-          <p>Your pace, your words, your choice of tools.</p>
+          <p>Set your daily goal and manage your account.</p>
         </div>
       </div>
       {notice && (
@@ -144,8 +141,7 @@ export function Settings({
       )}
       <div className="settings-grid">
         <section className="panel">
-          <span className="eyebrow">YOUR DAILY PRACTICE</span>
-          <h2>A little, every day.</h2>
+          <h2>Daily practice</h2>
           <label>
             What should we call you?
             <input
@@ -202,8 +198,7 @@ export function Settings({
           </label>
         </section>
         <section className="panel">
-          <span className="eyebrow">YOUR ACCOUNT</span>
-          <h2>Keep your progress.</h2>
+          <h2>Account</h2>
           <p>
             {email
               ? `Signed in as ${email}`
@@ -298,8 +293,7 @@ export function Settings({
       <section className="ai-section">
         <div className="section-heading">
           <div>
-            <span className="eyebrow">OPTIONAL, PERSONAL AI</span>
-            <h2>A tutor, on your terms.</h2>
+            <h2>AI connections</h2>
           </div>
           <span className="pill">
             <Sparkles size={13} /> Core learning is always AI-free
@@ -495,11 +489,10 @@ export function Settings({
             )}
           </p>
         )}
-        <span className="eyebrow">BUILD YOUR PERSONAL WORD BANK</span>
-        <h2>Words for what you’re writing.</h2>
+        <h2>Personal word packs</h2>
         <p className="muted">
-          Tell your tutor what you’re studying. Review its suggestions before
-          adding them to your daily learning.
+          Describe what you’re studying, then review the suggestions before
+          adding them.
         </p>
         <label htmlFor="word-request">
           What kind of words would help?
@@ -530,33 +523,6 @@ export function Settings({
             {busy ? "Working…" : "Suggest words with AI"}
           </button>
         </div>
-        <details className="import-words">
-          <summary>Import a custom word pack (JSON)</summary>
-          <label>
-            Word pack JSON
-            <textarea
-              rows={5}
-              maxLength={100000}
-              value={raw}
-              onChange={(e) => setRaw(e.target.value)}
-              placeholder="Paste the structured response here…"
-            />
-          </label>
-          <button
-            className="button"
-            disabled={!raw.trim() || busy}
-            onClick={() =>
-              action(async () => {
-                setCandidates(parseCustomWords(raw));
-                setNotice(
-                  "Pack checked. Review the suggestions below before adding them.",
-                );
-              })
-            }
-          >
-            Preview word pack <ArrowRight size={16} />
-          </button>
-        </details>
         {candidates.length > 0 && (
           <div className="word-preview">
             <h3>{candidates.length} suggestions to review</h3>
@@ -588,7 +554,6 @@ export function Settings({
               onClick={() => {
                 const count = onAddWords(candidates);
                 setCandidates([]);
-                setRaw("");
                 setNotice(
                   `${count} new words added to your library. Duplicates were skipped.`,
                 );

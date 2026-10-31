@@ -83,11 +83,9 @@ async function connect(page: Page) {
   await page
     .getByRole("button", { name: "Connect OpenAI", exact: true })
     .click();
-  const card = page
-    .locator(".provider-card")
-    .filter({
-      has: page.getByRole("heading", { name: "OpenAI", exact: true }),
-    });
+  const card = page.locator(".provider-card").filter({
+    has: page.getByRole("heading", { name: "OpenAI", exact: true }),
+  });
   await expect(card).toContainText("Connected");
   await expect(
     page.getByRole("button", { name: "Suggest words with AI" }),
@@ -126,7 +124,10 @@ test("OpenAI BYOK connects, gives guided feedback, previews and adds words, then
   await expect(page.getByLabel("Your OpenAI API key")).toHaveCount(0);
   await page
     .getByRole("navigation", { name: "Main navigation" })
-    .getByRole("button", { name: "Writing workshop", exact: true })
+    .getByRole("button", { name: "Practice", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: /Writing workshop Build a precise/ })
     .click();
   await page
     .getByLabel("Your analytical sentence")

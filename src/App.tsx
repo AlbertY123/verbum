@@ -6,9 +6,9 @@ import {
   BookOpen,
   Bookmark,
   ChartNoAxesCombined,
+  CheckCheck,
   Check,
   ChevronRight,
-  CircleHelp,
   Cloud,
   ExternalLink,
   Feather,
@@ -17,11 +17,11 @@ import {
   Keyboard,
   LayoutDashboard,
   Lightbulb,
+  ListChecks,
   Menu,
   Moon,
   Search,
   Settings2,
-  Sparkles,
   Sun,
   Target,
   X,
@@ -30,9 +30,11 @@ import { words as curriculum } from "./data/words";
 import type { LearnerState, Word } from "./types";
 import {
   categories,
+  activityTotal,
   dayKey,
   getQueue,
   recordPractice,
+  recordUsage,
   recordReview,
   streak,
 } from "./lib/learning";
@@ -44,21 +46,51 @@ import { Auth } from "./components/Auth";
 import { Study } from "./components/Study";
 import { SentenceStudio, Workshop } from "./components/Workshop";
 import { Settings } from "./components/Settings";
+import { UsagePractice } from "./components/UsagePractice";
 
 type Page =
   | "today"
   | "library"
   | "writing"
   | "typing"
+  | "practice"
+  | "choice"
+  | "repair"
   | "progress"
   | "settings"
   | "study";
 const navigation = [
   { id: "today", label: "My desk", icon: LayoutDashboard },
   { id: "library", label: "Word library", icon: BookOpen },
-  { id: "writing", label: "Writing workshop", icon: Feather },
-  { id: "typing", label: "Sentence studio", icon: Keyboard },
+  { id: "practice", label: "Practice", icon: Feather },
   { id: "progress", label: "My progress", icon: ChartNoAxesCombined },
+] as const;
+const practiceModes = [
+  {
+    id: "writing",
+    title: "Writing workshop",
+    description: "Build a precise analytical sentence with a guided task.",
+    icon: Feather,
+  },
+  {
+    id: "typing",
+    title: "Sentence studio",
+    description: "Practise the rhythm and phrasing of strong essay sentences.",
+    icon: Keyboard,
+  },
+  {
+    id: "choice",
+    title: "Choose the right word",
+    description:
+      "Compare close meanings and make a choice that fits the evidence.",
+    icon: ListChecks,
+  },
+  {
+    id: "repair",
+    title: "Refine the sentence",
+    description: "Spot imprecise language and improve how a sentence works.",
+    icon: CheckCheck,
+  },
 ] as const;
 let callback: Promise<boolean> | undefined;
 const getPage = (): Page => {
@@ -68,6 +100,9 @@ const getPage = (): Page => {
     "library",
     "writing",
     "typing",
+    "practice",
+    "choice",
+    "repair",
     "progress",
     "settings",
   ].includes(p)
@@ -117,6 +152,14 @@ export default function App() {
     if (next !== "study") location.hash = next;
     window.scrollTo({ top: 0, behavior: "instant" });
   }
+  const practicePage = practiceModes.find((mode) => mode.id === page);
+  useEffect(() => {
+    const title =
+      practiceModes.find((mode) => mode.id === page)?.title ??
+      navigation.find((item) => item.id === page)?.label ??
+      (page === "study" ? "Daily practice" : "Preferences");
+    document.title = title + " · Verbum";
+  }, [page]);
   useEffect(() => {
     const handler = () => setPage(getPage());
     window.addEventListener("hashchange", handler);
@@ -152,8 +195,27 @@ export default function App() {
   useEffect(() => {
     if (user) setAuth(false);
   }, [user]);
+  useEffect(() => {
+    if (!menu) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const dismiss = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenu(false);
+    };
+    const resize = () => {
+      if (window.innerWidth > 720) setMenu(false);
+    };
+    window.addEventListener("keydown", dismiss);
+    window.addEventListener("resize", resize);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", dismiss);
+      window.removeEventListener("resize", resize);
+    };
+  }, [menu]);
   const queue = getQueue(words, state);
   const due = queue.filter((w) => state.progress[w.id]).length;
+  const newCount = queue.length - due;
   const today = state.activity[dayKey()];
   const learned = Object.keys(state.progress).length;
   const dailyProgress = Math.min(
@@ -204,7 +266,14 @@ export default function App() {
         Skip to content
       </a>
       <header className="mobile-header">
-        <a className="brand" href="#today">
+        <a
+          className="brand"
+          href="#today"
+          onClick={(event) => {
+            event.preventDefault();
+            navigate("today");
+          }}
+        >
           <span className="brand-mark">v.</span>verbum
           <span className="brand-period">.</span>
         </a>
@@ -225,18 +294,30 @@ export default function App() {
         />
       )}
       <aside className={`sidebar ${menu ? "is-open" : ""}`}>
-        <a className="brand" href="#today" onClick={() => setMenu(false)}>
+        <a
+          className="brand"
+          href="#today"
+          onClick={(event) => {
+            event.preventDefault();
+            navigate("today");
+          }}
+        >
           <span className="brand-mark">v.</span>verbum
           <span className="brand-period">.</span>
         </a>
-        <span className="sidebar-caption">WORDS WITH PURPOSE</span>
+        <span className="sidebar-caption">VCE English</span>
         <nav aria-label="Main navigation">
-          <span className="nav-label">YOUR LEARNING SPACE</span>
           {navigation.map((item) => (
             <button
               key={item.id}
-              aria-current={page === item.id ? "page" : undefined}
-              className={`nav-item ${page === item.id || (page === "study" && item.id === "today") ? "active" : ""}`}
+              aria-current={
+                page === item.id ||
+                (item.id === "practice" && practicePage) ||
+                (page === "study" && item.id === "today")
+                  ? "page"
+                  : undefined
+              }
+              className={`nav-item ${page === item.id || (item.id === "practice" && practicePage) || (page === "study" && item.id === "today") ? "active" : ""}`}
               onClick={() => navigate(item.id)}
             >
               <item.icon size={19} />
@@ -248,21 +329,6 @@ export default function App() {
           ))}
         </nav>
         <div className="sidebar-bottom">
-          <div className="daily-mini">
-            <div>
-              <span className="mini-spark">
-                <Sparkles size={17} />
-              </span>
-              <strong>A little, every day.</strong>
-            </div>
-            <p>{state.dailyGoal} new words. A more confident you.</p>
-            <div className="progress-track">
-              <span style={{ width: `${dailyProgress}%` }} />
-            </div>
-            <span className="small muted">
-              {today?.newWords ?? 0} of {state.dailyGoal} new words today
-            </span>
-          </div>
           <button
             className={`nav-item ${page === "settings" ? "active" : ""}`}
             onClick={() => navigate("settings")}
@@ -270,41 +336,50 @@ export default function App() {
             <Settings2 size={19} />
             <span>Preferences</span>
           </button>
-          <button className="nav-item" onClick={() => setPolicy("about")}>
-            <CircleHelp size={19} />
-            <span>About Verbum</span>
-          </button>
-          <button
-            className="profile-button"
-            onClick={() => (user ? navigate("settings") : setAuth(true))}
-          >
-            <span className="avatar">
-              {state.name ? (
-                state.name[0].toUpperCase()
-              ) : (
-                <GraduationCap size={20} />
-              )}
-            </span>
-            <span>
-              <strong>{state.name || "Your learning space"}</strong>
-              <small>
-                {user ? "Account connected" : "Learning on this device"}
-              </small>
-            </span>
-            <ChevronRight size={15} />
-          </button>
+          {user && (
+            <button
+              className="profile-button"
+              onClick={() => navigate("settings")}
+            >
+              <span className="avatar">
+                {state.name ? (
+                  state.name[0].toUpperCase()
+                ) : (
+                  <GraduationCap size={20} />
+                )}
+              </span>
+              <span>
+                <strong>{state.name || "My account"}</strong>
+                <small>Account connected</small>
+              </span>
+              <ChevronRight size={15} />
+            </button>
+          )}
         </div>
       </aside>
-      <div className="main-shell">
+      <div className="main-shell" inert={menu || undefined}>
         <div className="topbar">
-          <span>
-            <span className="status-dot" /> MADE FOR VCE ENGLISH
+          <span className="current-page">
+            {practicePage ? (
+              <>
+                <button
+                  className="breadcrumb-link"
+                  onClick={() => navigate("practice")}
+                >
+                  Practice
+                </button>
+                <span aria-hidden="true">/</span>
+                {practicePage.title}
+              </>
+            ) : page === "settings" ? (
+              "Preferences"
+            ) : page === "study" ? (
+              "Daily practice"
+            ) : (
+              navigation.find((item) => item.id === page)?.label
+            )}
           </span>
           <div className="topbar-actions">
-            <span className="streak">
-              <Flame size={16} />
-              {streak(state)} day{streak(state) !== 1 ? "s" : ""}
-            </span>
             <button
               className="icon-button"
               aria-label={
@@ -356,77 +431,81 @@ export default function App() {
             <>
               <div className="page-heading dashboard-heading">
                 <div>
-                  <span className="eyebrow">
-                    {new Date().toLocaleDateString("en-AU", {
-                      weekday: "long",
-                      day: "numeric",
-                      month: "long",
-                    })}
-                  </span>
                   <h1>
-                    Find the words{state.name ? `, ${state.name}` : ""}
+                    Find the words{state.name ? ", " + state.name : ""}
                     <span>.</span>
                   </h1>
                   <p>
-                    A little more precise. A little more persuasive. A few words
-                    at a time.
+                    Your daily practice for clearer, more confident writing.
                   </p>
                 </div>
-                <span className="desk-doodle" aria-hidden="true">
-                  ✳
-                </span>
+                <time className="dashboard-date">
+                  {new Date().toLocaleDateString("en-AU", {
+                    weekday: "short",
+                    day: "numeric",
+                    month: "short",
+                  })}
+                </time>
               </div>
               <div className="dashboard-hero">
                 <section className="daily-card">
                   <div className="hero-top">
-                    <span className="pill">
-                      <span className="status-dot" /> YOUR DAILY PRACTICE
-                    </span>
-                    <span className="small">
-                      About {Math.max(3, Math.ceil(queue.length * 1.2))} minutes
+                    <span>Daily practice</span>
+                    <span>
+                      {queue.length
+                        ? "About " +
+                          Math.max(3, Math.ceil(queue.length * 1.2)) +
+                          " minutes"
+                        : "All caught up"}
                     </span>
                   </div>
                   <h2>
-                    Good ideas deserve
-                    <br />
-                    <em>the right words.</em>
+                    {queue.length ? (
+                      <>
+                        A few words,
+                        <br />a little more confidence.
+                      </>
+                    ) : (
+                      "You’re up to date."
+                    )}
                   </h2>
                   <p>
-                    Build a vocabulary you can actually use.
-                    <br />
-                    Today’s small step starts here.
+                    {queue.length
+                      ? "Recall what you know, then learn something new."
+                      : "No words are due right now. Explore the library or try another practice."}
                   </p>
                   <div className="hero-action">
-                    <button className="button cream" onClick={start}>
-                      {learned ? "Continue learning" : "Start today’s practice"}
+                    <button
+                      className="button cream"
+                      onClick={queue.length ? start : () => navigate("library")}
+                    >
+                      {queue.length
+                        ? learned
+                          ? "Continue learning"
+                          : "Start today’s practice"
+                        : "Explore the library"}
                       <ArrowRight size={17} />
                     </button>
                     <span>
-                      {Math.max(0, state.dailyGoal - (today?.newWords ?? 0))}{" "}
-                      new words <span className="dot-separator">·</span> {due}{" "}
-                      to review
+                      {newCount} new <span className="dot-separator">·</span>{" "}
+                      {due} to review
                     </span>
                   </div>
-                  <div className="hero-art" aria-hidden="true">
-                    <span className="art-orbit orbit-one" />
-                    <span className="art-orbit orbit-two" />
-                    <span className="art-star">✦</span>
-                    <span className="art-letter">Aa</span>
-                    <span className="art-caption">a world in a word</span>
+                  <div className="daily-goal">
+                    <div>
+                      <span>Daily goal</span>
+                      <span>
+                        {today?.newWords ?? 0} / {state.dailyGoal} new words
+                      </span>
+                    </div>
+                    <div className="progress-track">
+                      <span style={{ width: dailyProgress + "%" }} />
+                    </div>
                   </div>
                 </section>
                 <section className="word-of-day">
-                  <div className="section-heading">
-                    <span className="eyebrow">A WORD TO SIT WITH</span>
-                    <Sparkles size={17} />
-                  </div>
-                  <span className="word-day-label">{wordOfDay.category}</span>
-                  <button
-                    className="word-day-title"
-                    onClick={() => setDetail(wordOfDay)}
-                  >
-                    {wordOfDay.word}
-                  </button>
+                  <span className="word-spotlight-label">Word of the day</span>
+                  <h2 className="word-day-title">{wordOfDay.word}</h2>
                   <span className="part-of-speech">
                     {wordOfDay.partOfSpeech}
                   </span>
@@ -436,142 +515,93 @@ export default function App() {
                     className="text-button"
                     onClick={() => setDetail(wordOfDay)}
                   >
-                    Get to know this word <ArrowRight size={15} />
+                    Explore word <ArrowRight size={15} />
                   </button>
                 </section>
               </div>
-              <div className="stat-row">
-                <div className="stat-card">
-                  <span className="stat-icon">
-                    <BookMarked size={20} />
+              <div
+                className="dashboard-summary"
+                aria-label="Your learning summary"
+              >
+                <span>
+                  <BookMarked size={17} />
+                  <strong>{learned}</strong> words introduced
+                </span>
+                {streak(state) > 0 && (
+                  <span>
+                    <Flame size={17} />
+                    <strong>{streak(state)}</strong> day streak
                   </span>
-                  <div>
-                    <span>Words in your repertoire</span>
-                    <strong>
-                      {learned}
-                      <small> / {words.length}</small>
-                    </strong>
-                  </div>
-                </div>
-                <div className="stat-card">
-                  <span className="stat-icon amber">
-                    <Flame size={20} />
-                  </span>
-                  <div>
-                    <span>Your learning streak</span>
-                    <strong>
-                      {streak(state)}
-                      <small> days of showing up</small>
-                    </strong>
-                  </div>
-                </div>
-                <div className="stat-card">
-                  <span className="stat-icon mauve">
-                    <Target size={20} />
-                  </span>
-                  <div>
-                    <span>Today’s new words</span>
-                    <strong>
-                      {today?.newWords ?? 0}
-                      <small> / {state.dailyGoal} word goal</small>
-                    </strong>
-                  </div>
-                  <div
-                    className="mini-ring"
-                    style={{
-                      background: `conic-gradient(var(--green) ${dailyProgress}%, var(--border) 0)`,
-                    }}
-                  >
-                    <span>{Math.round(dailyProgress)}%</span>
-                  </div>
-                </div>
+                )}
+                <button
+                  className="text-button"
+                  onClick={() => navigate("progress")}
+                >
+                  View progress <ArrowRight size={14} />
+                </button>
               </div>
               <section className="practice-section">
                 <div className="section-heading">
-                  <div>
-                    <span className="eyebrow">BEYOND THE FLASHCARD</span>
-                    <h2>Put your words to work.</h2>
-                  </div>
-                  <span className="small muted desktop-only">
-                    Knowing a word is just the beginning.
-                  </span>
+                  <h2>Put your words to work.</h2>
                 </div>
                 <div className="practice-grid">
-                  <button
-                    className="practice-card"
-                    onClick={() => navigate("writing")}
-                  >
-                    <span className="practice-icon peach">
-                      <Feather size={24} />
-                    </span>
-                    <span className="tag">THINK IT. WRITE IT.</span>
-                    <h3>The writing workshop</h3>
-                    <p>
-                      Turn a source, a word and an idea into a precise
-                      analytical sentence.
-                    </p>
-                    <span className="practice-link">
-                      Find your voice <ArrowRight size={16} />
-                    </span>
-                    <span className="practice-decoration" aria-hidden="true">
-                      a↗
-                    </span>
-                  </button>
-                  <button
-                    className="practice-card"
-                    onClick={() => navigate("typing")}
-                  >
-                    <span className="practice-icon lavender">
-                      <Keyboard size={24} />
-                    </span>
-                    <span className="tag">FEEL THE RHYTHM</span>
-                    <h3>The sentence studio</h3>
-                    <p>
-                      Type thoughtful sentences. Get familiar with how academic
-                      language flows.
-                    </p>
-                    <span className="practice-link">
-                      Get into the flow <ArrowRight size={16} />
-                    </span>
-                    <span
-                      className="practice-decoration typing-deco"
-                      aria-hidden="true"
+                  {practiceModes.map((mode) => (
+                    <button
+                      key={mode.id}
+                      className="practice-card"
+                      onClick={() => navigate(mode.id)}
                     >
-                      ab<span>|</span>
-                    </span>
-                  </button>
-                  <button
-                    className="practice-card"
-                    onClick={() => navigate("library")}
-                  >
-                    <span className="practice-icon sage">
-                      <BookOpen size={24} />
-                    </span>
-                    <span className="tag">FOLLOW YOUR CURIOSITY</span>
-                    <h3>Your next favourite word</h3>
-                    <p>
-                      Explore words for analysis, argument and the ideas that
-                      connect them.
-                    </p>
-                    <span className="practice-link">
-                      Explore the library <ArrowRight size={16} />
-                    </span>
-                    <span className="practice-decoration" aria-hidden="true">
-                      &
-                    </span>
-                  </button>
+                      <span className="practice-icon">
+                        <mode.icon size={22} />
+                      </span>
+                      <div>
+                        <h3>{mode.title}</h3>
+                        <p>{mode.description}</p>
+                      </div>
+                      <ArrowRight className="practice-arrow" size={18} />
+                    </button>
+                  ))}
                 </div>
               </section>
-              <div className="bottom-note">
-                <span className="quote-mark">“</span>
-                <p>
-                  The aim isn’t to sound more complicated.
-                  <br />
-                  <strong>It’s to say exactly what you mean.</strong>
-                </p>
-                <span className="small muted">THE VERBUM APPROACH</span>
+            </>
+          ) : page === "practice" ? (
+            <>
+              <div className="page-heading">
+                <div>
+                  <h1>
+                    Practice with purpose<span>.</span>
+                  </h1>
+                  <p>
+                    Choose one way to turn vocabulary into confident writing.
+                  </p>
+                </div>
+              </div>
+              <div className="practice-grid practice-hub">
+                {practiceModes.map((mode) => (
+                  <button
+                    key={mode.id}
+                    className="practice-card"
+                    onClick={() => navigate(mode.id)}
+                  >
+                    <span className="practice-icon">
+                      <mode.icon size={24} />
+                    </span>
+                    <div>
+                      <h3>{mode.title}</h3>
+                      <p>{mode.description}</p>
+                    </div>
+                    <ArrowRight className="practice-arrow" size={18} />
+                  </button>
+                ))}
               </div>
             </>
+          ) : page === "choice" || page === "repair" ? (
+            <UsagePractice
+              key={page}
+              mode={page}
+              onComplete={() => update((s) => recordUsage(s, page))}
+              onExit={() => navigate("practice")}
+            />
           ) : page === "library" ? (
             <Library
               words={words}
@@ -641,14 +671,12 @@ export default function App() {
           )}
         </main>
         <footer>
-          <span>
-            verbum. <span>Small steps. Stronger sentences.</span>
+          <span className="sync-status">
+            <Cloud size={13} />
+            {learner.sync}
           </span>
           <div>
-            <span className="sync-status">
-              <Cloud size={13} />
-              {learner.sync}
-            </span>
+            <button onClick={() => setPolicy("about")}>About Verbum</button>
             <button onClick={() => setPolicy("privacy")}>Privacy</button>
           </div>
         </footer>
@@ -916,7 +944,7 @@ function Library({
   const [category, setCategory] = useState("All words");
   const [level, setLevel] = useState("All levels");
   const [saved, setSaved] = useState(false);
-  const [limit, setLimit] = useState(36);
+  const [limit, setLimit] = useState(24);
   const filtered = words.filter(
     (w) =>
       (category === "All words" || w.category === category) &&
@@ -926,20 +954,15 @@ function Library({
         .toLowerCase()
         .includes(search.toLowerCase()),
   );
-  useEffect(() => setLimit(36), [search, category, level, saved]);
+  useEffect(() => setLimit(24), [search, category, level, saved]);
   return (
     <>
       <div className="page-heading">
         <div>
-          <span className="eyebrow">
-            {words.length} WORDS. COUNTLESS POSSIBILITIES.
-          </span>
           <h1>
             Build your repertoire<span>.</span>
           </h1>
-          <p>
-            Find a sharper verb, a richer idea, a more precise way to say it.
-          </p>
+          <p>Explore words, examples and the details that make them useful.</p>
         </div>
         <button
           className={`button ${saved ? "primary" : ""}`}
@@ -1053,7 +1076,7 @@ function Library({
       {filtered.length > limit && (
         <button
           className="button load-more"
-          onClick={() => setLimit((n) => n + 36)}
+          onClick={() => setLimit((n) => n + 24)}
         >
           Explore more words <ArrowDown size={16} />
         </button>
@@ -1090,7 +1113,6 @@ function Progress({
     <>
       <div className="page-heading">
         <div>
-          <span className="eyebrow">CONFIDENCE, BUILT OVER TIME</span>
           <h1>
             Look how far you’ve come<span>.</span>
           </h1>
@@ -1138,7 +1160,7 @@ function Progress({
           <div className="activity-grid">
             {dates.map((date) => {
               const a = state.activity[date];
-              const count = a ? a.reviews + a.writing + a.typing : 0;
+              const count = activityTotal(a);
               return (
                 <div
                   key={date}
@@ -1160,12 +1182,11 @@ function Progress({
             <span>More</span>
           </div>
           <p className="fine-print">
-            Includes reviews, saved writing and completed typing comprehension
-            checks. Dates follow this device’s local time.
+            Includes reviews, writing, typing and word-usage exercises. Dates
+            follow this device’s local time.
           </p>
         </section>
         <section className="panel">
-          <span className="eyebrow">YOUR REPERTOIRE</span>
           <h2>Explore every angle.</h2>
           <div className="category-progress">
             {categories.map((c) => {
@@ -1193,7 +1214,6 @@ function Progress({
         </section>
       </div>
       <section className="panel journal">
-        <span className="eyebrow">YOUR WORDS, IN YOUR VOICE</span>
         <h2>The writing journal.</h2>
         {state.writing.length ? (
           state.writing

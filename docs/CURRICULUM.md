@@ -39,6 +39,8 @@ The VCAA pages above are cited for curriculum orientation only. No VCAA examinat
 
 Learners meet a word in context, retrieve it, revisit it and apply it in a guided sentence. Typing practice rehearses spelling and familiar combinations; copying fluently does not, by itself, demonstrate independent understanding. Original writing and explanation remain necessary.
 
+Word choice and sentence repair add 40 authored questions in five-question sessions. Word choice asks learners to distinguish nearby meanings against specific evidence. Sentence repair asks them to correct imprecise claims, unsuitable collocations or mismatched meanings. Each answer has its own explanation, including why a tempting alternative fails in that context. First-attempt scores describe that session only; completing these sessions contributes to activity and streaks, not automatic mastery of the target words.
+
 Gap exercises train retrieval of the currently taught target, including its grammatical form. Natural language can admit other sensible answers. A mismatch against the stored answer should not be interpreted as proof that every other sentence completion is ungrammatical or meaningless.
 
 AI suggestions are optional learning feedback, not an examination grade. User-requested additions should be reviewed for accuracy and suitability before students rely on them. Core definitions, examples and retrieval exercises work without an AI provider.

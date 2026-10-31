@@ -36,6 +36,8 @@ export interface Activity {
   newWords: number;
   writing: number;
   typing: number;
+  choice?: number;
+  repair?: number;
 }
 export interface WritingEntry {
   id: string;

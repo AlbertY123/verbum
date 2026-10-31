@@ -1,0 +1,238 @@
+.usage-practice {
+  max-width: 840px;
+  margin: 0 auto;
+}
+.usage-session-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 14px;
+}
+.usage-progress {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 4px;
+  border: 0;
+  background: var(--border);
+  color: var(--green);
+  margin: 0 0 24px;
+}
+.usage-progress::-webkit-progress-bar {
+  background: var(--border);
+}
+.usage-progress::-webkit-progress-value {
+  background: var(--green);
+}
+.usage-progress::-moz-progress-bar {
+  background: var(--green);
+}
+.usage-question {
+  box-shadow: none;
+}
+.usage-context {
+  margin: 12px 0 28px;
+  font-size: 15px;
+  line-height: 1.85;
+}
+.usage-sentence {
+  background: var(--bg);
+  padding: 18px 22px;
+  margin: 12px 0 26px;
+  font-size: 20px;
+  line-height: 1.75;
+}
+.usage-flawed {
+  border-left-style: dashed;
+}
+.usage-blank {
+  padding: 0 3px;
+  font-weight: 600;
+  color: var(--green);
+}
+.usage-prompt {
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.75;
+  margin: 0 0 16px;
+}
+.usage-options {
+  display: grid;
+  gap: 10px;
+}
+.usage-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--panel);
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.usage-option > span:nth-child(2) {
+  flex: 1;
+}
+.usage-option:hover:not(:disabled) {
+  border-color: var(--green);
+}
+.usage-option.usage-selected {
+  border-color: var(--green);
+  background: var(--green-soft);
+}
+.usage-option.usage-correct {
+  border-color: var(--green);
+}
+.usage-option.usage-revisit {
+  border-style: dashed;
+}
+.usage-option:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.usage-option-letter {
+  flex: 0 0 22px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  padding-top: 2px;
+}
+.usage-option > svg {
+  color: var(--green);
+  margin-top: 3px;
+}
+.usage-check,
+.usage-next {
+  margin-top: 23px;
+}
+.usage-feedback {
+  margin-top: 24px;
+  padding: 18px 20px;
+  border-left: 3px solid var(--muted);
+  background: var(--bg);
+  font-size: 14px;
+  line-height: 1.8;
+}
+.usage-feedback-correct {
+  border-color: var(--green);
+  background: var(--green-soft);
+}
+.usage-feedback > strong {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+.usage-feedback p {
+  margin: 9px 0 0;
+}
+.usage-comparison {
+  padding: 19px 0 0;
+}
+.usage-comparison ol {
+  padding-left: 22px;
+  margin: 18px 0 0;
+}
+.usage-comparison li {
+  padding-left: 5px;
+  margin-bottom: 17px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.usage-comparison li p {
+  margin: 5px 0 0;
+  color: var(--muted);
+}
+.usage-footnote {
+  max-width: 680px;
+  margin: 22px auto;
+  color: var(--muted);
+  text-align: center;
+  font-size: 12px;
+}
+.usage-complete {
+  max-width: 720px;
+  padding-top: 25px;
+}
+.usage-complete h1 {
+  margin: 14px 0 24px;
+}
+.usage-result {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin: 0 0 18px;
+}
+.usage-result strong {
+  font-family: Georgia, serif;
+  font-size: 40px;
+  font-weight: 400;
+  color: var(--green);
+}
+.usage-result > span {
+  font-size: 13px;
+  color: var(--muted);
+}
+.usage-result-review {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 0;
+  margin: 25px 0;
+}
+.usage-result-review > div {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 11px 0;
+}
+.usage-result-review > div > span {
+  color: var(--muted);
+  padding-top: 3px;
+}
+.usage-result-review > div > .usage-result-correct {
+  color: var(--green);
+}
+.usage-result-review p {
+  margin: 0;
+  font-size: 13px;
+}
+@media (max-width: 720px) {
+  .usage-context {
+    font-size: 14px;
+  }
+  .usage-sentence {
+    font-size: 18px;
+    padding: 14px 16px;
+  }
+  .usage-prompt {
+    font-size: 14px;
+  }
+  .usage-option {
+    padding: 12px;
+    gap: 8px;
+    font-size: 13px;
+  }
+  .usage-feedback {
+    padding: 15px;
+    font-size: 13px;
+  }
+  .usage-complete {
+    padding-top: 5px;
+  }
+  .usage-complete .action-row {
+    align-items: stretch;
+  }
+  .usage-complete .action-row > .button {
+    flex: 1 1 100%;
+  }
+  .usage-result {
+    align-items: center;
+  }
+}

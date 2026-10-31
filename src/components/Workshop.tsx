@@ -9,6 +9,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import type { Word } from "../types";
+import "./sentence-studio.css";
 import { guidedTask, normaliseTyping } from "../lib/learning";
 import {
   getAIConnection,
@@ -257,7 +258,12 @@ export function SentenceStudio({
   const [checked, setChecked] = useState(false);
   const [keystrokes, setKeystrokes] = useState(0);
   const [mistakes, setMistakes] = useState(0);
+  const [focused, setFocused] = useState(false);
+  const [caret, setCaret] = useState(0);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const meaningRef = useRef<HTMLHeadingElement>(null);
+  const composing = useRef(false);
+  const compositionStart = useRef("");
   const word = words[index % words.length];
   const target = normaliseTyping(word.example);
   const options = useMemo(() => {
@@ -277,6 +283,15 @@ export function SentenceStudio({
     );
     return () => clearInterval(timer);
   }, [start, finished]);
+  useEffect(() => {
+    // A physical keyboard can start straight away. Touch users open their
+    // keyboard by tapping the sentence, rather than on page navigation.
+    if (window.matchMedia("(pointer: fine)").matches)
+      inputRef.current?.focus({ preventScroll: true });
+  }, []);
+  useEffect(() => {
+    if (finished) meaningRef.current?.focus({ preventScroll: true });
+  }, [finished]);
   const accuracy = keystrokes
     ? Math.max(0, Math.round(((keystrokes - mistakes) / keystrokes) * 100))
     : 100;
@@ -290,23 +305,66 @@ export function SentenceStudio({
     setChecked(false);
     setKeystrokes(0);
     setMistakes(0);
-    setTimeout(() => inputRef.current?.focus(), 0);
+    setCaret(0);
+    composing.current = false;
+    // Keep keyboard focus through a new sentence. readOnly is used below so
+    // the editor remains focusable while React updates the completed state.
+    inputRef.current?.focus({ preventScroll: true });
+  }
+  function updateTyping(raw: string, previous = typed, selection = raw.length) {
+    const text = normaliseTyping(raw);
+    const t = start ?? Date.now();
+    if (!start && text) setStart(t);
+    // Count the edited segment, not just changes in total length. Replacing a
+    // wrong character must count as another keystroke; backspace is not one.
+    let prefix = 0;
+    while (
+      prefix < previous.length &&
+      prefix < text.length &&
+      previous[prefix] === text[prefix]
+    )
+      prefix++;
+    let suffix = 0;
+    while (
+      suffix < previous.length - prefix &&
+      suffix < text.length - prefix &&
+      previous[previous.length - 1 - suffix] === text[text.length - 1 - suffix]
+    )
+      suffix++;
+    const inserted = text.slice(prefix, text.length - suffix);
+    if (inserted) {
+      setKeystrokes((k) => k + inserted.length);
+      setMistakes(
+        (m) =>
+          m +
+          [...inserted].filter(
+            (character, offset) => character !== target[prefix + offset],
+          ).length,
+      );
+    }
+    setTyped(text);
+    setCaret(
+      Math.min(normaliseTyping(raw.slice(0, selection)).length, text.length),
+    );
+    if (text === target) {
+      setFinished(true);
+      setElapsed((Date.now() - t) / 1000);
+    }
   }
   return (
-    <>
+    <div className="sentence-studio">
       <div className="page-heading">
         <div>
-          <span className="eyebrow">LET GOOD SENTENCES BECOME FAMILIAR</span>
           <h1>
             The sentence studio<span>.</span>
           </h1>
-          <p>
-            Type with attention. Notice the phrasing. Then check the meaning.
-          </p>
+          <p>Type the sentence where you see it. Then check the meaning.</p>
         </div>
-        <span className="pill">Accuracy over speed</span>
       </div>
-      <section className="typing-panel">
+      <section
+        className={`typing-panel ${focused ? "is-focused" : ""} ${finished ? "is-finished" : ""}`}
+        aria-label="Sentence typing practice"
+      >
         <div className="typing-top">
           <span className="category-label">{word.category}</span>
           <div className="typing-stats">
@@ -323,61 +381,98 @@ export function SentenceStudio({
             </span>
           </div>
         </div>
-        <div
-          className="typing-text"
-          aria-hidden="true"
-          onClick={() => inputRef.current?.focus()}
-        >
-          {[...target].map((char, i) => (
-            <span
-              key={i}
-              className={`${i < typed.length ? (char === typed[i] ? "char-correct" : "char-wrong") : ""} ${i === typed.length ? "char-current" : ""}`}
-            >
-              {char}
-            </span>
-          ))}
-        </div>
-        <p className="sr-only">Sentence to type: {target}</p>
-        <label htmlFor="typing-input" className="label-caps">
+        <label htmlFor="typing-input" className="sr-only">
           TYPE THE SENTENCE HERE
         </label>
-        <textarea
-          ref={inputRef}
-          id="typing-input"
-          rows={3}
-          value={typed}
-          spellCheck={false}
-          autoComplete="off"
-          autoCorrect="off"
-          autoCapitalize="off"
-          disabled={finished}
-          onPaste={(e) => e.preventDefault()}
-          onChange={(e) => {
-            const text = normaliseTyping(e.target.value);
-            const t = start ?? Date.now();
-            if (!start) setStart(t);
-            if (text.length > typed.length) {
-              const added = text.length - typed.length;
-              setKeystrokes((k) => k + added);
-              setMistakes(
-                (m) =>
-                  m +
-                  [...text.slice(typed.length)].filter(
-                    (c, i) => c !== target[typed.length + i],
-                  ).length,
+        <p className="sr-only" id="typing-sentence">
+          Sentence to type: {target}
+        </p>
+        <div className="inline-typing">
+          <div className="typing-text" aria-hidden="true">
+            {[...target].map((char, i) => (
+              <span
+                key={i}
+                className={`${i < typed.length ? (char === typed[i] ? "char-correct" : "char-wrong") : "char-pending"} ${i === caret && !finished ? "char-current" : ""}`}
+              >
+                {char}
+              </span>
+            ))}
+            {[...typed.slice(target.length)].map((char, i) => (
+              <span
+                key={`extra-${i}`}
+                className={`char-wrong char-extra ${caret === target.length + i && !finished ? "char-current" : ""}`}
+              >
+                {char}
+              </span>
+            ))}
+            {caret === Math.max(target.length, typed.length) && !finished && (
+              <span className="char-current char-end" />
+            )}
+          </div>
+          <textarea
+            ref={inputRef}
+            id="typing-input"
+            className="typing-capture"
+            rows={1}
+            value={typed}
+            maxLength={target.length + 50}
+            spellCheck={false}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            inputMode="text"
+            enterKeyHint="done"
+            aria-describedby="typing-sentence typing-instruction"
+            readOnly={finished}
+            aria-readonly={finished}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            onPaste={(e) => e.preventDefault()}
+            onDrop={(e) => e.preventDefault()}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") e.currentTarget.blur();
+            }}
+            onClick={(e) => {
+              // Clicking a fresh line resumes typing at the current end,
+              // rather than guessing a position from transparent text.
+              e.currentTarget.setSelectionRange(typed.length, typed.length);
+              setCaret(typed.length);
+            }}
+            onSelect={(e) => {
+              if (!composing.current) setCaret(e.currentTarget.selectionStart);
+            }}
+            onCompositionStart={() => {
+              composing.current = true;
+              compositionStart.current = typed;
+            }}
+            onCompositionEnd={(e) => {
+              composing.current = false;
+              updateTyping(
+                e.currentTarget.value,
+                compositionStart.current,
+                e.currentTarget.selectionStart,
               );
-            }
-            setTyped(text);
-            if (text === target) {
-              setFinished(true);
-              setElapsed((Date.now() - t) / 1000);
-            }
-          }}
-          placeholder="Start typing when you’re ready…"
-        />
+            }}
+            onChange={(e) => {
+              if (finished) return;
+              if (composing.current) {
+                setTyped(e.target.value);
+                setCaret(e.target.selectionStart);
+                return;
+              }
+              updateTyping(e.target.value, typed, e.target.selectionStart);
+            }}
+          />
+        </div>
         <div className="typing-bottom">
-          <span>
-            {typed.length} / {target.length} characters
+          <span id="typing-instruction">
+            {finished
+              ? "Sentence complete. Check your understanding below."
+              : focused
+                ? typed
+                  ? "Keep going. Backspace to correct a mistake."
+                  : "Start typing. Accuracy comes first."
+                : "Click or tap the sentence to type."}
           </span>
           <button className="text-button" onClick={() => reset()}>
             <RotateCcw size={14} /> Restart sentence
@@ -389,8 +484,9 @@ export function SentenceStudio({
       </section>
       {finished && (
         <section className="panel meaning-check">
-          <span className="eyebrow">THE WORD BEHIND THE WORDS</span>
-          <h2>What does “{word.word}” mean here?</h2>
+          <h2 ref={meaningRef} tabIndex={-1}>
+            What does “{word.word}” mean here?
+          </h2>
           <div className="definition-options">
             {options.map((w) => (
               <button
@@ -428,13 +524,6 @@ export function SentenceStudio({
           )}
         </section>
       )}
-      <div className="studio-footnote">
-        <Lightbulb size={18} />
-        <p>
-          Typing helps you notice how words fit together. To practise producing
-          your own ideas, follow this with the writing workshop.
-        </p>
-      </div>
-    </>
+    </div>
   );
 }

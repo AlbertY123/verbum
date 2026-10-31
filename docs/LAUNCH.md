@@ -35,4 +35,4 @@ Cloudflare Pages supplies [SPA fallback by default](https://developers.cloudflar
 
 ## Evidence supplied by automated tests
 
-Unit tests check curriculum integrity, scheduling and daily quotas, conservative data merging, AI response validation, provider isolation and revision conflicts. Browser tests check complete study, library, writing and typing flows, device persistence, mobile layout and a mocked Supabase fresh-device restore. Live Supabase RLS, Google OAuth configuration and billed AI calls still need the steps above.
+Unit tests check curriculum integrity, scheduling and daily quotas, practice activity, conservative data merging, AI response validation, provider isolation and revision conflicts. Browser tests check complete study, library, guided writing, inline typing, word choice and sentence repair flows, device persistence, mobile layout, accessibility and a mocked Supabase fresh-device restore. Live Supabase RLS, Google OAuth configuration and billed AI calls still need the steps above.

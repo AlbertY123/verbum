@@ -2856,3 +2856,526 @@ footer button {
     visibility: visible;
   }
 }
+
+/* A quieter workspace: one clear action, useful context, and less repeated chrome. */
+:root {
+  --sidebar: 224px;
+  --shadow: none;
+}
+.sidebar {
+  padding: 30px 18px 22px;
+}
+.brand {
+  font-size: 30px;
+}
+.sidebar-caption {
+  margin: 13px 0 38px 45px;
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.nav-item {
+  min-height: 46px;
+  font-size: 13px;
+  gap: 11px;
+  margin: 5px 0;
+}
+.sidebar-bottom {
+  padding-top: 24px;
+}
+.profile-button {
+  padding-top: 20px;
+}
+.profile-button strong {
+  font-size: 12px;
+}
+.profile-button small {
+  font-size: 10px;
+  line-height: 1.6;
+  display: block;
+  max-width: 125px;
+}
+.topbar {
+  height: 64px;
+  padding: 0 40px;
+}
+.topbar .current-page {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0;
+}
+.breadcrumb-link {
+  padding: 6px 0;
+  font-size: inherit;
+  color: var(--green);
+}
+.breadcrumb-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+main {
+  max-width: 1280px;
+  padding: 36px 40px 0;
+  min-height: calc(100dvh - 141px);
+}
+.page-heading {
+  margin-bottom: 30px;
+}
+.page-heading h1 {
+  font-size: 37px;
+  letter-spacing: -1px;
+}
+.page-heading .eyebrow {
+  display: none;
+}
+.page-heading p {
+  margin-top: 12px;
+  font-size: 13px;
+}
+.dashboard-date {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.dashboard-hero {
+  grid-template-columns: 1.55fr 1fr;
+  gap: 24px;
+}
+.daily-card {
+  min-height: 330px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+}
+.hero-top {
+  font-size: 12px;
+  color: #d5e0d5;
+}
+.hero-top > span:last-child {
+  font-size: 11px;
+  color: #cad8cc;
+}
+.daily-card h2 {
+  font-size: 34px;
+  line-height: 1.2;
+  letter-spacing: -0.8px;
+  margin: 26px 0 14px;
+}
+.daily-card p {
+  font-size: 13px;
+  color: #d2ddd2;
+  margin: 0;
+}
+.hero-action {
+  margin-top: 25px;
+  gap: 16px;
+}
+.hero-action .button {
+  font-size: 13px;
+  padding: 11px 17px;
+}
+.hero-action > span {
+  color: #d2ddd2;
+  font-size: 12px;
+}
+.daily-goal {
+  margin-top: auto;
+  padding-top: 28px;
+}
+.daily-goal > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 11px;
+  color: #d2ddd2;
+  margin-bottom: 10px;
+}
+.daily-goal .progress-track {
+  height: 4px;
+  background: #ffffff26;
+}
+.daily-goal .progress-track > span {
+  background: #c1d2ac;
+}
+.word-of-day {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background: #f4f1e9;
+  border-color: #e5e1d6;
+}
+.word-spotlight-label {
+  font-size: 12px;
+  color: #706348;
+  margin-bottom: 23px;
+}
+.word-of-day .word-day-title {
+  padding: 0;
+  margin: 0 0 6px;
+  font-size: 34px;
+}
+.word-of-day .part-of-speech {
+  font-size: 12px;
+}
+.word-of-day > p {
+  margin: 18px 0 0;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.word-of-day blockquote {
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 16px 0 24px;
+}
+.word-of-day .text-button {
+  margin-top: auto;
+  font-size: 12px;
+}
+.dashboard-summary {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  min-height: 72px;
+  padding: 18px 2px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.dashboard-summary > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.dashboard-summary strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+.dashboard-summary > button {
+  margin-left: auto;
+}
+.practice-section .section-heading {
+  margin-bottom: 18px;
+}
+.practice-section .section-heading h2 {
+  font-size: 27px;
+  margin: 0;
+}
+.practice-grid {
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.practice-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 23px;
+  border-radius: 10px;
+  min-height: 132px;
+}
+.practice-card:hover {
+  transform: translateY(-2px);
+  background: var(--green-soft);
+}
+.practice-card .practice-icon {
+  width: 39px;
+  height: 39px;
+  margin: 0;
+  border-radius: 8px;
+  flex-shrink: 0;
+  background: var(--green-soft);
+  color: var(--green);
+}
+.practice-card h3 {
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.5;
+  margin: 0 0 8px;
+}
+.practice-card p {
+  font-size: 12px;
+  line-height: 1.8;
+  margin: 0;
+  max-width: 100%;
+}
+.practice-arrow {
+  margin-left: auto;
+  margin-top: 9px;
+  color: var(--green);
+}
+.practice-hub .practice-card {
+  min-height: 150px;
+  padding: 28px;
+}
+.word-grid {
+  gap: 18px;
+}
+.word-card {
+  padding: 18px 20px;
+}
+.word-card p {
+  font-size: 13px;
+}
+.category-tabs {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+}
+.category-tabs button {
+  flex-shrink: 0;
+}
+footer {
+  max-width: 1280px;
+  padding: 30px 40px 22px;
+}
+footer .sync-status {
+  font-family: inherit;
+  font-size: 11px;
+}
+footer button {
+  font-size: 11px;
+}
+[data-theme="dark"] .word-spotlight-label {
+  color: #c6c0a6;
+}
+[data-theme="dark"] .practice-card .practice-icon {
+  color: var(--green);
+}
+
+@media (max-width: 1150px) {
+  :root {
+    --sidebar: 208px;
+  }
+  main {
+    padding: 30px 28px 0;
+  }
+  .topbar {
+    padding: 0 28px;
+  }
+  footer {
+    padding: 28px;
+  }
+  .daily-card {
+    padding: 26px;
+  }
+  .daily-card h2 {
+    font-size: 30px;
+  }
+  .word-of-day {
+    padding: 24px;
+  }
+  .practice-card {
+    padding: 21px;
+    gap: 12px;
+  }
+}
+@media (max-width: 960px) {
+  .dashboard-hero {
+    grid-template-columns: 1fr;
+  }
+  .daily-card {
+    min-height: 310px;
+  }
+  .daily-card h2 {
+    font-size: 34px;
+  }
+  .word-of-day {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 0 25px;
+  }
+  .word-spotlight-label {
+    grid-column: 1;
+    margin-bottom: 15px;
+  }
+  .word-of-day .word-day-title {
+    grid-column: 1;
+  }
+  .word-of-day .part-of-speech {
+    grid-column: 1;
+  }
+  .word-of-day > p {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    margin: 0;
+  }
+  .word-of-day blockquote {
+    grid-column: 2;
+    grid-row: 3 / 6;
+    margin: 10px 0 0;
+  }
+  .word-of-day .text-button {
+    grid-column: 1;
+    margin-top: 20px;
+  }
+  .practice-grid {
+    grid-template-columns: 1fr;
+  }
+  .practice-card {
+    min-height: 105px;
+  }
+  .practice-card .practice-icon {
+    margin-top: 0;
+  }
+  .practice-hub .practice-card {
+    min-height: 120px;
+  }
+}
+@media (max-width: 720px) {
+  :root {
+    --sidebar: 248px;
+  }
+  .sidebar {
+    padding: 28px 20px;
+  }
+  .sidebar .sidebar-caption {
+    font-size: 12px;
+    margin-bottom: 34px;
+  }
+  .mobile-header {
+    height: 64px;
+  }
+  .topbar {
+    height: 48px;
+    padding: 0 20px;
+  }
+  .topbar .current-page {
+    font-size: 11px;
+    gap: 7px;
+  }
+  main {
+    padding: 28px 20px 0;
+  }
+  .page-heading {
+    margin-bottom: 25px;
+  }
+  .page-heading h1 {
+    font-size: 32px;
+  }
+  .page-heading p {
+    font-size: 13px;
+  }
+  .dashboard-date {
+    display: none;
+  }
+  .dashboard-hero {
+    gap: 18px;
+  }
+  .daily-card {
+    padding: 24px;
+    min-height: 325px;
+  }
+  .daily-card h2 {
+    font-size: 30px;
+  }
+  .daily-card p {
+    font-size: 12px;
+  }
+  .hero-top {
+    font-size: 12px;
+  }
+  .hero-top > span:last-child {
+    font-size: 11px;
+  }
+  .hero-action {
+    gap: 13px;
+  }
+  .hero-action .button {
+    font-size: 12px;
+  }
+  .hero-action > span {
+    font-size: 11px;
+  }
+  .word-of-day {
+    display: flex;
+    gap: 0;
+    padding: 23px;
+  }
+  .word-spotlight-label {
+    margin-bottom: 16px;
+  }
+  .word-of-day .word-day-title {
+    font-size: 32px;
+  }
+  .word-of-day .part-of-speech {
+    font-size: 12px;
+  }
+  .word-of-day > p {
+    margin-top: 16px;
+    font-size: 13px;
+  }
+  .word-of-day blockquote {
+    margin: 14px 0 18px;
+    font-size: 14px;
+  }
+  .word-of-day .text-button {
+    margin-top: 0;
+    font-size: 12px;
+  }
+  .dashboard-summary {
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 27px;
+  }
+  .dashboard-summary > span {
+    font-size: 11px;
+    gap: 6px;
+  }
+  .dashboard-summary .text-button {
+    font-size: 11px;
+  }
+  .practice-section .section-heading h2 {
+    font-size: 25px;
+  }
+  .practice-grid {
+    gap: 12px;
+  }
+  .practice-card {
+    padding: 20px;
+    gap: 13px;
+    min-height: 112px;
+  }
+  .practice-card .practice-icon {
+    width: 35px;
+    height: 35px;
+  }
+  .practice-card h3 {
+    font-size: 15px;
+    margin: 0 0 7px;
+  }
+  .practice-card p {
+    font-size: 12px;
+  }
+  .practice-arrow {
+    width: 16px;
+  }
+  .word-grid {
+    gap: 12px;
+  }
+  .word-card {
+    padding: 14px;
+  }
+  .word-card p {
+    font-size: 12px;
+  }
+  footer {
+    padding: 28px 20px 22px;
+  }
+  footer .sync-status {
+    max-width: 190px;
+    font-size: 10px;
+  }
+  footer > div {
+    gap: 12px;
+  }
+  footer button {
+    font-size: 10px;
+  }
+}

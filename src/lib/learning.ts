@@ -148,6 +148,38 @@ export function recordPractice(
     },
   };
 }
+export function recordUsage(
+  state: LearnerState,
+  mode: "choice" | "repair",
+  now = new Date(),
+): LearnerState {
+  const date = dayKey(now);
+  const previous: Activity = state.activity[date] ?? {
+    date,
+    reviews: 0,
+    correct: 0,
+    newWords: 0,
+    writing: 0,
+    typing: 0,
+  };
+  return {
+    ...state,
+    updatedAt: now.toISOString(),
+    activity: {
+      ...state.activity,
+      [date]: { ...previous, [mode]: (previous[mode] ?? 0) + 1 },
+    },
+  };
+}
+export function activityTotal(activity?: Activity): number {
+  return activity
+    ? activity.reviews +
+        activity.writing +
+        activity.typing +
+        (activity.choice ?? 0) +
+        (activity.repair ?? 0)
+    : 0;
+}
 export function getQueue(
   words: Word[],
   state: LearnerState,
@@ -183,7 +215,7 @@ export function streak(state: LearnerState, now = new Date()): number {
   let result = 0;
   const active = () => {
     const a = state.activity[dayKey(cursor)];
-    return a && a.reviews + a.writing + a.typing > 0;
+    return activityTotal(a) > 0;
   };
   if (!active()) cursor.setDate(cursor.getDate() - 1);
   while (active()) {
@@ -226,9 +258,15 @@ export function isLearnerState(value: unknown): value is LearnerState {
       (a) =>
         a &&
         typeof a.date === "string" &&
-        [a.reviews, a.correct, a.newWords, a.writing, a.typing].every(
-          (n) => Number.isFinite(n) && n >= 0,
-        ),
+        [
+          a.reviews,
+          a.correct,
+          a.newWords,
+          a.writing,
+          a.typing,
+          a.choice ?? 0,
+          a.repair ?? 0,
+        ].every((n) => Number.isFinite(n) && n >= 0),
     ) &&
     Array.isArray(s.saved) &&
     s.saved.every((x) => typeof x === "string") &&
@@ -282,6 +320,8 @@ export function mergeStates(
           newWords: Math.max(a.newWords, b.newWords),
           writing: Math.max(a.writing, b.writing),
           typing: Math.max(a.typing, b.typing),
+          choice: Math.max(a.choice ?? 0, b.choice ?? 0),
+          repair: Math.max(a.repair ?? 0, b.repair ?? 0),
         }
       : a;
   }
