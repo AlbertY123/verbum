@@ -85,11 +85,9 @@ test("library search, difficulty, categories and bookmarks work together", async
   const word = words.find((item) => item.word === "elucidate") ?? words[0];
   await page.goto("/#library");
   await page.getByLabel("Search vocabulary").fill(word.word);
+  await page.locator(".library-filters > summary").click();
   await page.getByLabel("Filter difficulty").selectOption(word.level);
-  await page
-    .locator(".category-tabs")
-    .getByRole("button", { name: word.category, exact: true })
-    .click();
+  await page.getByLabel("Filter category").selectOption(word.category);
   const card = page.locator(".word-card").filter({
     has: page.getByRole("heading", { name: word.word, exact: true }),
   });
@@ -202,7 +200,7 @@ test("mobile navigation and dark mode remain usable without horizontal overflow"
     page.getByRole("button", { name: "Open navigation" }),
   ).toHaveAttribute("aria-expanded", "false");
   await expect(
-    page.getByRole("heading", { name: "Build your repertoire." }),
+    page.getByRole("heading", { name: "Your word library." }),
   ).toBeVisible();
   expect(
     await page.evaluate(

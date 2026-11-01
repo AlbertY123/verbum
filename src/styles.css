@@ -597,79 +597,6 @@ main:focus {
   transform: rotate(8deg);
   margin-right: 16px;
 }
-.dashboard-hero {
-  display: grid;
-  grid-template-columns: 1.6fr 1fr;
-  gap: 22px;
-}
-.daily-card {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  min-height: 311px;
-  padding: 25px 29px;
-  background: #285448;
-  border-radius: 12px;
-  color: #f7f5e8;
-}
-.hero-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  position: relative;
-  z-index: 2;
-}
-.hero-top .pill {
-  border-color: #ffffff28;
-  color: #dbe4ce;
-  font-size: 9px;
-  padding: 5px 9px;
-  letter-spacing: 1px;
-}
-.hero-top > .small {
-  font-size: 11px;
-  color: #b3c5b7;
-}
-.daily-card h2 {
-  font-size: 36px;
-  letter-spacing: -1.2px;
-  line-height: 1.2;
-  margin: 27px 0 12px;
-  position: relative;
-  z-index: 2;
-}
-.daily-card h2 em {
-  font-weight: 400;
-  color: #d9e1bf;
-}
-.daily-card p {
-  font-size: 12px;
-  line-height: 1.8;
-  color: #bfd0c4;
-  position: relative;
-  z-index: 2;
-}
-.hero-action {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 24px;
-  position: relative;
-  z-index: 2;
-}
-.hero-action > span {
-  font-size: 10px;
-  color: #b3c6b8;
-}
-.hero-action .button {
-  font-size: 12px;
-  padding: 10px 14px;
-}
-.dot-separator {
-  margin: 0 4px;
-}
 .hero-art {
   position: absolute;
   right: 0;
@@ -724,61 +651,11 @@ main:focus {
   bottom: 17px;
   transform: rotate(-9deg);
 }
-.word-of-day {
-  background: #f5f0e4;
-  border: 1px solid #e8e1d1;
-  border-radius: 12px;
-  padding: 23px 25px;
-}
-.word-of-day .section-heading {
-  margin-bottom: 19px;
-  color: #706348;
-}
-.word-of-day .eyebrow {
-  font-size: 9px;
-  color: #706348;
-  letter-spacing: 1.4px;
-}
 .word-day-label {
   display: block;
   font-size: 10px;
   color: #706348;
   margin-bottom: 4px;
-}
-.word-day-title {
-  font-family: Georgia, serif;
-  display: block;
-  font-size: 31px;
-  letter-spacing: -0.8px;
-  color: #4f5542;
-  padding: 0;
-  margin-bottom: 3px;
-  text-align: left;
-  overflow-wrap: anywhere;
-}
-.word-of-day .part-of-speech {
-  font-size: 11px;
-  color: #706348;
-  font-style: italic;
-}
-.word-of-day > p {
-  font-size: 12px;
-  line-height: 1.7;
-  margin: 16px 0 10px;
-  color: #706348;
-}
-.word-of-day blockquote {
-  font-size: 12px;
-  font-style: italic;
-  line-height: 1.8;
-  border: 0;
-  padding: 0;
-  color: #706348;
-  margin: 10px 0 17px;
-}
-.word-of-day .text-button {
-  font-size: 11px;
-  color: #706348;
 }
 .stat-row {
   display: grid;
@@ -855,12 +732,6 @@ main:focus {
   font-size: 8px !important;
   margin: 0 !important;
   color: var(--green) !important;
-}
-.practice-section .section-heading .eyebrow {
-  font-size: 9px;
-}
-.practice-section .section-heading h2 {
-  font-size: 26px;
 }
 .practice-grid {
   display: grid;
@@ -1090,24 +961,6 @@ footer button {
   margin: 0;
   font-size: 12px;
 }
-.category-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 24px;
-}
-.category-tabs button {
-  padding: 8px 12px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 12px;
-  color: var(--muted);
-}
-.category-tabs button.selected {
-  background: var(--green);
-  border-color: var(--green);
-  color: white;
-}
 .result-count {
   display: flex;
   justify-content: space-between;
@@ -1134,12 +987,6 @@ footer button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-.word-level {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--muted);
 }
 .word-card-main {
   display: flex;
@@ -1994,23 +1841,6 @@ footer button {
 [data-theme="dark"] .button.primary:hover {
   background: #c3d8b7;
 }
-[data-theme="dark"] .daily-card {
-  background: #2a4c3e;
-}
-[data-theme="dark"] .word-of-day {
-  background: #35382a;
-  border-color: #4c4e38;
-}
-[data-theme="dark"] .word-day-title {
-  color: #dddac0;
-}
-[data-theme="dark"] .word-of-day > p,
-[data-theme="dark"] .word-of-day blockquote {
-  color: #bfb99d;
-}
-[data-theme="dark"] .word-of-day .text-button {
-  color: #cac8a4;
-}
 [data-theme="dark"] .stat-icon,
 [data-theme="dark"] .practice-icon {
   background: #354331;
@@ -2027,9 +1857,6 @@ footer button {
 [data-theme="dark"] .avatar {
   background: #3c4935;
   color: #c2cba9;
-}
-[data-theme="dark"] .category-tabs button.selected {
-  color: #22311d;
 }
 [data-theme="dark"] .answer-feedback.incorrect {
   background: #473429;
@@ -2048,31 +1875,10 @@ footer button {
   color: #efb7ac;
 }
 @media (min-width: 1500px) {
-  .daily-card h2 {
-    font-size: 43px;
-  }
-  .daily-card {
-    padding: 30px 35px;
-  }
   .hero-art {
     right: 25px;
     top: 65px;
     transform: scale(1.1);
-  }
-  .daily-card p {
-    font-size: 13px;
-  }
-  .hero-action {
-    margin-top: 30px;
-  }
-  .word-of-day {
-    padding: 27px 30px;
-  }
-  .word-of-day > p {
-    font-size: 13px;
-  }
-  .word-of-day blockquote {
-    font-size: 14px;
   }
   .practice-card p {
     font-size: 12px;
@@ -2094,25 +1900,9 @@ footer button {
   footer {
     padding: 25px 29px;
   }
-  .daily-card {
-    padding: 24px;
-  }
-  .daily-card h2 {
-    font-size: 31px;
-  }
   .hero-art {
     opacity: 0.27;
     right: -35px;
-  }
-  .dashboard-hero {
-    grid-template-columns: 1.45fr 1fr;
-    gap: 17px;
-  }
-  .hero-action {
-    gap: 10px;
-  }
-  .hero-action > span {
-    font-size: 10px;
   }
   .stat-card {
     padding: 17px 14px;
@@ -2185,49 +1975,13 @@ footer button {
   .profile-button small {
     font-size: 9px;
   }
-  .dashboard-hero {
-    grid-template-columns: 1fr;
-  }
-  .daily-card {
-    min-height: 290px;
-  }
-  .daily-card h2 {
-    font-size: 37px;
-  }
   .hero-art {
     opacity: 0.7;
     right: 45px;
     top: 55px;
   }
-  .word-of-day {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    column-gap: 25px;
-  }
-  .word-of-day .section-heading {
-    grid-column: 1/-1;
-    margin-bottom: 10px;
-  }
-  .word-of-day > p {
-    grid-column: 2;
-    grid-row: 2/5;
-    margin-top: 0;
-  }
-  .word-of-day blockquote {
-    grid-column: 2;
-    grid-row: 5/7;
-    margin: 0;
-  }
-  .word-day-title {
+  .word-day-label {
     grid-column: 1;
-  }
-  .word-day-label,
-  .word-of-day .part-of-speech {
-    grid-column: 1;
-  }
-  .word-of-day .text-button {
-    grid-column: 1;
-    margin-top: 15px;
   }
   .stat-row {
     gap: 12px;
@@ -2450,50 +2204,10 @@ footer button {
     font-size: 40px;
     margin-right: 0;
   }
-  .dashboard-hero {
-    gap: 17px;
-  }
-  .daily-card {
-    padding: 24px;
-    min-height: 307px;
-  }
-  .daily-card h2 {
-    font-size: 34px;
-    margin-top: 28px;
-  }
-  .daily-card p {
-    font-size: 12px;
-  }
   .hero-art {
     right: -15px;
     opacity: 0.32;
     top: 65px;
-  }
-  .hero-action {
-    gap: 12px;
-    margin-top: 27px;
-  }
-  .hero-action > .button {
-    font-size: 12px;
-  }
-  .hero-top .small {
-    font-size: 10px;
-  }
-  .word-of-day {
-    padding: 20px;
-    column-gap: 18px;
-  }
-  .word-day-title {
-    font-size: 27px;
-  }
-  .word-of-day > p {
-    font-size: 12px;
-  }
-  .word-of-day blockquote {
-    font-size: 12px;
-  }
-  .word-of-day .text-button {
-    font-size: 10px;
   }
   .stat-row {
     gap: 9px;
@@ -2555,9 +2269,6 @@ footer button {
   }
   .practice-decoration {
     display: none;
-  }
-  .practice-section .section-heading h2 {
-    font-size: 26px;
   }
   .bottom-note {
     margin-top: 27px;
@@ -2621,18 +2332,8 @@ footer button {
   .search-box > svg {
     width: 15px;
   }
-  .category-tabs {
-    gap: 6px;
-  }
-  .category-tabs button {
-    font-size: 11px;
-    padding: 7px 9px;
-  }
   .result-count {
     font-size: 10px;
-  }
-  .result-count > span:last-child {
-    display: none;
   }
   .page-heading > .button {
     padding: 8px 10px;
@@ -2835,9 +2536,7 @@ footer button {
 [data-theme="dark"] .streak {
   color: #c5b995;
 }
-[data-theme="dark"] .word-of-day .eyebrow,
-[data-theme="dark"] .word-day-label,
-[data-theme="dark"] .word-of-day .part-of-speech {
+[data-theme="dark"] .word-day-label {
   color: #c6c0a6;
 }
 [data-theme="dark"] .practice-link,
@@ -2935,52 +2634,6 @@ main {
   margin-top: 12px;
   font-size: 13px;
 }
-.dashboard-date {
-  color: var(--muted);
-  font-size: 12px;
-  white-space: nowrap;
-}
-.dashboard-hero {
-  grid-template-columns: 1.55fr 1fr;
-  gap: 24px;
-}
-.daily-card {
-  min-height: 330px;
-  padding: 30px;
-  display: flex;
-  flex-direction: column;
-}
-.hero-top {
-  font-size: 12px;
-  color: #d5e0d5;
-}
-.hero-top > span:last-child {
-  font-size: 11px;
-  color: #cad8cc;
-}
-.daily-card h2 {
-  font-size: 34px;
-  line-height: 1.2;
-  letter-spacing: -0.8px;
-  margin: 26px 0 14px;
-}
-.daily-card p {
-  font-size: 13px;
-  color: #d2ddd2;
-  margin: 0;
-}
-.hero-action {
-  margin-top: 25px;
-  gap: 16px;
-}
-.hero-action .button {
-  font-size: 13px;
-  padding: 11px 17px;
-}
-.hero-action > span {
-  color: #d2ddd2;
-  font-size: 12px;
-}
 .daily-goal {
   margin-top: auto;
   padding-top: 28px;
@@ -2999,71 +2652,6 @@ main {
 }
 .daily-goal .progress-track > span {
   background: #c1d2ac;
-}
-.word-of-day {
-  padding: 28px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  background: #f4f1e9;
-  border-color: #e5e1d6;
-}
-.word-spotlight-label {
-  font-size: 12px;
-  color: #706348;
-  margin-bottom: 23px;
-}
-.word-of-day .word-day-title {
-  padding: 0;
-  margin: 0 0 6px;
-  font-size: 34px;
-}
-.word-of-day .part-of-speech {
-  font-size: 12px;
-}
-.word-of-day > p {
-  margin: 18px 0 0;
-  font-size: 13px;
-  line-height: 1.7;
-}
-.word-of-day blockquote {
-  font-size: 14px;
-  line-height: 1.7;
-  margin: 16px 0 24px;
-}
-.word-of-day .text-button {
-  margin-top: auto;
-  font-size: 12px;
-}
-.dashboard-summary {
-  display: flex;
-  align-items: center;
-  gap: 28px;
-  min-height: 72px;
-  padding: 18px 2px;
-  margin-bottom: 24px;
-  border-bottom: 1px solid var(--border);
-}
-.dashboard-summary > span {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--muted);
-}
-.dashboard-summary strong {
-  font-weight: 600;
-  color: var(--ink);
-}
-.dashboard-summary > button {
-  margin-left: auto;
-}
-.practice-section .section-heading {
-  margin-bottom: 18px;
-}
-.practice-section .section-heading h2 {
-  font-size: 27px;
-  margin: 0;
 }
 .practice-grid {
   grid-template-columns: 1fr 1fr;
@@ -3122,15 +2710,6 @@ main {
 .word-card p {
   font-size: 13px;
 }
-.category-tabs {
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  padding-bottom: 6px;
-  scrollbar-width: thin;
-}
-.category-tabs button {
-  flex-shrink: 0;
-}
 footer {
   max-width: 1280px;
   padding: 30px 40px 22px;
@@ -3141,9 +2720,6 @@ footer .sync-status {
 }
 footer button {
   font-size: 11px;
-}
-[data-theme="dark"] .word-spotlight-label {
-  color: #c6c0a6;
 }
 [data-theme="dark"] .practice-card .practice-icon {
   color: var(--green);
@@ -3162,59 +2738,12 @@ footer button {
   footer {
     padding: 28px;
   }
-  .daily-card {
-    padding: 26px;
-  }
-  .daily-card h2 {
-    font-size: 30px;
-  }
-  .word-of-day {
-    padding: 24px;
-  }
   .practice-card {
     padding: 21px;
     gap: 12px;
   }
 }
 @media (max-width: 960px) {
-  .dashboard-hero {
-    grid-template-columns: 1fr;
-  }
-  .daily-card {
-    min-height: 310px;
-  }
-  .daily-card h2 {
-    font-size: 34px;
-  }
-  .word-of-day {
-    display: grid;
-    grid-template-columns: 1fr 1.5fr;
-    gap: 0 25px;
-  }
-  .word-spotlight-label {
-    grid-column: 1;
-    margin-bottom: 15px;
-  }
-  .word-of-day .word-day-title {
-    grid-column: 1;
-  }
-  .word-of-day .part-of-speech {
-    grid-column: 1;
-  }
-  .word-of-day > p {
-    grid-column: 2;
-    grid-row: 1 / 3;
-    margin: 0;
-  }
-  .word-of-day blockquote {
-    grid-column: 2;
-    grid-row: 3 / 6;
-    margin: 10px 0 0;
-  }
-  .word-of-day .text-button {
-    grid-column: 1;
-    margin-top: 20px;
-  }
   .practice-grid {
     grid-template-columns: 1fr;
   }
@@ -3262,78 +2791,6 @@ footer button {
   .page-heading p {
     font-size: 13px;
   }
-  .dashboard-date {
-    display: none;
-  }
-  .dashboard-hero {
-    gap: 18px;
-  }
-  .daily-card {
-    padding: 24px;
-    min-height: 325px;
-  }
-  .daily-card h2 {
-    font-size: 30px;
-  }
-  .daily-card p {
-    font-size: 12px;
-  }
-  .hero-top {
-    font-size: 12px;
-  }
-  .hero-top > span:last-child {
-    font-size: 11px;
-  }
-  .hero-action {
-    gap: 13px;
-  }
-  .hero-action .button {
-    font-size: 12px;
-  }
-  .hero-action > span {
-    font-size: 11px;
-  }
-  .word-of-day {
-    display: flex;
-    gap: 0;
-    padding: 23px;
-  }
-  .word-spotlight-label {
-    margin-bottom: 16px;
-  }
-  .word-of-day .word-day-title {
-    font-size: 32px;
-  }
-  .word-of-day .part-of-speech {
-    font-size: 12px;
-  }
-  .word-of-day > p {
-    margin-top: 16px;
-    font-size: 13px;
-  }
-  .word-of-day blockquote {
-    margin: 14px 0 18px;
-    font-size: 14px;
-  }
-  .word-of-day .text-button {
-    margin-top: 0;
-    font-size: 12px;
-  }
-  .dashboard-summary {
-    gap: 14px;
-    flex-wrap: wrap;
-    margin-bottom: 27px;
-  }
-  .dashboard-summary > span {
-    font-size: 11px;
-    gap: 6px;
-  }
-  .dashboard-summary .text-button {
-    font-size: 11px;
-  }
-  .practice-section .section-heading h2 {
-    font-size: 25px;
-  }
   .practice-grid {
     gap: 12px;
   }
@@ -3377,5 +2834,256 @@ footer button {
   }
   footer button {
     font-size: 10px;
+  }
+}
+/* Focus the desk on one session and two vocabulary collections. */
+.session-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 26px 32px;
+  padding: 28px 30px;
+  background: #285448;
+  color: #f7f5e8;
+  border-radius: 12px;
+}
+.session-eyebrow {
+  font-size: 12px;
+  color: #d5e0d5;
+}
+.session-summary h2 {
+  font-size: 31px;
+  margin: 10px 0 12px;
+  letter-spacing: -0.6px;
+}
+.session-summary p {
+  font-size: 13px;
+  color: #d5e0d5;
+  margin: 0;
+}
+.session-next {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.session-next > span {
+  font-size: 11px;
+  color: #d5e0d5;
+}
+.session-summary .daily-goal {
+  grid-column: 1 / -1;
+  padding: 0;
+  margin: 0;
+}
+.word-collections {
+  margin-top: 32px;
+}
+.word-collections > h2 {
+  font-size: 25px;
+  margin-bottom: 18px;
+}
+.collection-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.collection-links > button {
+  text-align: left;
+  padding: 24px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.collection-links > button:hover {
+  border-color: var(--green);
+  background: var(--green-soft);
+}
+.collection-link-top,
+.collection-link-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.collection-link-top {
+  font-size: 17px;
+  font-weight: 600;
+}
+.collection-link-top strong {
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--green);
+}
+.collection-link-bottom {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 13px;
+  line-height: 1.65;
+}
+.collection-link-bottom svg {
+  color: var(--green);
+}
+.collection-switcher {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 560px;
+  border-bottom: 1px solid var(--border);
+}
+.collection-switcher button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 14px;
+  color: var(--muted);
+  border-bottom: 3px solid transparent;
+  font-size: 14px;
+}
+.collection-switcher button[aria-pressed="true"] {
+  border-color: var(--green);
+  color: var(--green);
+  font-weight: 600;
+}
+.collection-switcher button:hover {
+  background: var(--green-soft);
+}
+.collection-switcher button > span {
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: var(--green-soft);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.collection-note {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 16px 0 24px;
+}
+.library-toolbar .search-box {
+  min-width: 0;
+}
+.library-toolbar .search-box input:not([type]) {
+  margin: 0;
+  padding: 13px 0;
+  border: 0;
+  background: none;
+}
+.library-toolbar .saved-filter {
+  flex-shrink: 0;
+  font-size: 12px;
+}
+.library-filters {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.library-filters > summary {
+  width: fit-content;
+  color: var(--green);
+  font-size: 13px;
+  padding: 8px 0;
+}
+.library-filters > summary > span {
+  margin-left: 12px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.library-filter-fields {
+  display: flex;
+  gap: 18px;
+  align-items: end;
+  padding: 10px 0 16px;
+}
+.library-filter-fields > label {
+  flex: 1;
+  max-width: 300px;
+}
+.library-filter-fields .text-button {
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+.word-status {
+  color: var(--muted);
+  font-size: 11px;
+}
+.word-status.review-due {
+  background: var(--green-soft);
+  color: var(--green);
+  padding: 3px 7px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+[data-theme="dark"] .session-summary {
+  background: #2a4c3e;
+}
+@media (max-width: 960px) {
+  .session-summary {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .session-next {
+    align-items: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+  }
+}
+@media (max-width: 720px) {
+  .session-summary {
+    padding: 24px;
+  }
+  .session-summary h2 {
+    font-size: 28px;
+  }
+  .session-next {
+    gap: 12px;
+  }
+  .session-next .button {
+    font-size: 12px;
+  }
+  .word-collections {
+    margin-top: 28px;
+  }
+  .collection-links {
+    gap: 12px;
+    grid-template-columns: 1fr;
+  }
+  .collection-links > button {
+    padding: 19px 21px;
+  }
+  .collection-link-top strong {
+    font-size: 25px;
+  }
+  .collection-link-bottom {
+    margin-top: 7px;
+  }
+  .collection-switcher button {
+    padding: 12px 6px;
+    gap: 6px;
+    font-size: 12px;
+  }
+  .collection-switcher button > span {
+    padding: 2px 5px;
+  }
+  .collection-note {
+    font-size: 12px;
+    margin-bottom: 20px;
+  }
+  .library-toolbar {
+    gap: 10px;
+  }
+  .library-toolbar .saved-filter {
+    align-self: flex-start;
+    padding: 9px 12px;
+  }
+  .library-filter-fields {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .library-filter-fields > label {
+    flex: 1 1 180px;
+    max-width: none;
   }
 }

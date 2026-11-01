@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  ArrowDown,
   ArrowRight,
   BookMarked,
   BookOpen,
   Bookmark,
   ChartNoAxesCombined,
   CheckCheck,
-  Check,
   ChevronRight,
   Cloud,
   ExternalLink,
@@ -20,7 +18,6 @@ import {
   ListChecks,
   Menu,
   Moon,
-  Search,
   Settings2,
   Sun,
   Target,
@@ -44,6 +41,7 @@ import { supabase } from "./lib/supabase";
 import { Modal } from "./components/Modal";
 import { Auth } from "./components/Auth";
 import { Study } from "./components/Study";
+import { Library, type WordCollection } from "./components/Library";
 import { SentenceStudio, Workshop } from "./components/Workshop";
 import { Settings } from "./components/Settings";
 import { UsagePractice } from "./components/UsagePractice";
@@ -94,7 +92,7 @@ const practiceModes = [
 ] as const;
 let callback: Promise<boolean> | undefined;
 const getPage = (): Page => {
-  const p = location.hash.slice(1);
+  const p = location.hash.slice(1).split("?")[0];
   return [
     "today",
     "library",
@@ -109,6 +107,12 @@ const getPage = (): Page => {
     ? (p as Page)
     : "today";
 };
+const getCollection = (): WordCollection => {
+  const value = new URLSearchParams(location.hash.split("?")[1]).get(
+    "collection",
+  );
+  return value === "learned" || value === "to-learn" ? value : "all";
+};
 const getTheme = () => {
   try {
     return localStorage.getItem("verbum.theme") ?? "light";
@@ -121,6 +125,7 @@ export default function App() {
   const learner = useLearner();
   const { state, update, user } = learner;
   const [page, setPage] = useState<Page>(getPage);
+  const [collection, setCollection] = useState<WordCollection>(getCollection);
   const [theme, setTheme] = useState(getTheme);
   const [menu, setMenu] = useState(false);
   const [auth, setAuth] = useState(false);
@@ -146,10 +151,16 @@ export default function App() {
     ],
     [state.customWords],
   );
-  function navigate(next: Page) {
+  function navigate(next: Page, nextCollection = collection) {
     setPage(next);
     setMenu(false);
-    if (next !== "study") location.hash = next;
+    if (next === "library") {
+      setCollection(nextCollection);
+      location.hash =
+        nextCollection === "all"
+          ? "library"
+          : "library?collection=" + nextCollection;
+    } else if (next !== "study") location.hash = next;
     window.scrollTo({ top: 0, behavior: "instant" });
   }
   const practicePage = practiceModes.find((mode) => mode.id === page);
@@ -161,7 +172,10 @@ export default function App() {
     document.title = title + " · Verbum";
   }, [page]);
   useEffect(() => {
-    const handler = () => setPage(getPage());
+    const handler = () => {
+      setPage(getPage());
+      setCollection(getCollection());
+    };
     window.addEventListener("hashchange", handler);
     return () => window.removeEventListener("hashchange", handler);
   }, []);
@@ -217,13 +231,16 @@ export default function App() {
   const due = queue.filter((w) => state.progress[w.id]).length;
   const newCount = queue.length - due;
   const today = state.activity[dayKey()];
-  const learned = Object.keys(state.progress).length;
+  const learned = words.filter((word) => state.progress[word.id]).length;
+  const dueTotal = words.filter(
+    (word) =>
+      state.progress[word.id] &&
+      Date.parse(state.progress[word.id].due) <= Date.now(),
+  ).length;
   const dailyProgress = Math.min(
     100,
     ((today?.newWords ?? 0) / state.dailyGoal) * 100,
   );
-  const wordOfDay =
-    curriculum[Math.floor(Date.now() / 86400000) % curriculum.length];
   function start() {
     if (!state.onboarded) setOnboarding(true);
     else navigate("study");
@@ -456,132 +473,101 @@ export default function App() {
                     Find the words{state.name ? ", " + state.name : ""}
                     <span>.</span>
                   </h1>
-                  <p>
-                    Your daily practice for clearer, more confident writing.
-                  </p>
+                  <p>A little practice today. More words to make your own.</p>
                 </div>
-                <time className="dashboard-date">
-                  {new Date().toLocaleDateString("en-AU", {
-                    weekday: "short",
-                    day: "numeric",
-                    month: "short",
-                  })}
-                </time>
               </div>
-              <div className="dashboard-hero">
-                <section className="daily-card">
-                  <div className="hero-top">
-                    <span>Daily practice</span>
-                    <span>
-                      {queue.length
-                        ? "About " +
-                          Math.max(3, Math.ceil(queue.length * 1.2)) +
-                          " minutes"
-                        : "All caught up"}
-                    </span>
-                  </div>
+              <section
+                className="session-summary"
+                aria-label="Today’s practice"
+              >
+                <div className="session-copy">
+                  <span className="session-eyebrow">Today’s practice</span>
                   <h2>
-                    {queue.length ? (
-                      <>
-                        A few words,
-                        <br />a little more confidence.
-                      </>
-                    ) : (
-                      "You’re up to date."
-                    )}
+                    {queue.length
+                      ? due > 0
+                        ? due +
+                          " to review" +
+                          (newCount ? " · " + newCount + " new" : "")
+                        : newCount +
+                          (newCount === 1
+                            ? " new word to learn"
+                            : " new words to learn")
+                      : "You’re up to date."}
                   </h2>
                   <p>
                     {queue.length
-                      ? "Recall what you know, then learn something new."
-                      : "No words are due right now. Explore the library or try another practice."}
+                      ? due > 0
+                        ? "Revisit familiar words, then keep building your vocabulary."
+                        : "Learn their meanings, then try them in context."
+                      : "No words are due right now. Try using what you’ve learned."}
                   </p>
-                  <div className="hero-action">
-                    <button
-                      className="button cream"
-                      onClick={queue.length ? start : () => navigate("library")}
-                    >
-                      {queue.length
-                        ? learned
-                          ? "Continue learning"
-                          : "Start today’s practice"
-                        : "Explore the library"}
-                      <ArrowRight size={17} />
-                    </button>
+                </div>
+                <div className="session-next">
+                  <button
+                    className="button cream"
+                    onClick={queue.length ? start : () => navigate("practice")}
+                  >
+                    {queue.length
+                      ? learned
+                        ? "Continue learning"
+                        : "Start today’s practice"
+                      : "Practise using your words"}
+                    <ArrowRight size={17} />
+                  </button>
+                  {queue.length > 0 && (
                     <span>
-                      {newCount} new <span className="dot-separator">·</span>{" "}
-                      {due} to review
+                      About {Math.max(3, Math.ceil(queue.length * 1.2))} minutes
+                    </span>
+                  )}
+                </div>
+                <div className="daily-goal">
+                  <div>
+                    <span>Daily goal</span>
+                    <span>
+                      {today?.newWords ?? 0} / {state.dailyGoal} new words
                     </span>
                   </div>
-                  <div className="daily-goal">
-                    <div>
-                      <span>Daily goal</span>
-                      <span>
-                        {today?.newWords ?? 0} / {state.dailyGoal} new words
-                      </span>
-                    </div>
-                    <div className="progress-track">
-                      <span style={{ width: dailyProgress + "%" }} />
-                    </div>
+                  <div className="progress-track">
+                    <span style={{ width: dailyProgress + "%" }} />
                   </div>
-                </section>
-                <section className="word-of-day">
-                  <span className="word-spotlight-label">Word of the day</span>
-                  <h2 className="word-day-title">{wordOfDay.word}</h2>
-                  <span className="part-of-speech">
-                    {wordOfDay.partOfSpeech}
-                  </span>
-                  <p>{wordOfDay.definition}</p>
-                  <blockquote>{wordOfDay.example}</blockquote>
-                  <button
-                    className="text-button"
-                    onClick={() => setDetail(wordOfDay)}
-                  >
-                    Explore word <ArrowRight size={15} />
-                  </button>
-                </section>
-              </div>
-              <div
-                className="dashboard-summary"
-                aria-label="Your learning summary"
-              >
-                <span>
-                  <BookMarked size={17} />
-                  <strong>{learned}</strong> words introduced
-                </span>
-                {streak(state) > 0 && (
-                  <span>
-                    <Flame size={17} />
-                    <strong>{streak(state)}</strong> day streak
-                  </span>
-                )}
-                <button
-                  className="text-button"
-                  onClick={() => navigate("progress")}
-                >
-                  View progress <ArrowRight size={14} />
-                </button>
-              </div>
-              <section className="practice-section">
-                <div className="section-heading">
-                  <h2>Put your words to work.</h2>
                 </div>
-                <div className="practice-grid">
-                  {practiceModes.map((mode) => (
-                    <button
-                      key={mode.id}
-                      className="practice-card"
-                      onClick={() => navigate(mode.id)}
-                    >
-                      <span className="practice-icon">
-                        <mode.icon size={22} />
+              </section>
+              <section
+                className="word-collections"
+                aria-labelledby="word-collections-title"
+              >
+                <h2 id="word-collections-title">Your words</h2>
+                <div className="collection-links">
+                  <button
+                    onClick={() => navigate("library", "to-learn")}
+                    aria-label="Browse words to learn"
+                  >
+                    <span className="collection-link-top">
+                      <span>To learn</span>
+                      <strong>{words.length - learned}</strong>
+                    </span>
+                    <span className="collection-link-bottom">
+                      <span>Words you haven’t practised yet.</span>
+                      <ArrowRight size={18} />
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => navigate("library", "learned")}
+                    aria-label="Browse learned words"
+                  >
+                    <span className="collection-link-top">
+                      <span>Learned</span>
+                      <strong>{learned}</strong>
+                    </span>
+                    <span className="collection-link-bottom">
+                      <span>
+                        {dueTotal > 0
+                          ? dueTotal + " due for review."
+                          : "Words you’ve practised at least once."}
                       </span>
-                      <div>
-                        <h3>{mode.title}</h3>
-                        <p>{mode.description}</p>
-                      </div>
-                      <ArrowRight className="practice-arrow" size={18} />
-                    </button>
-                  ))}
+                      <ArrowRight size={18} />
+                    </span>
+                  </button>
                 </div>
               </section>
             </>
@@ -629,6 +615,9 @@ export default function App() {
               state={state}
               onDetail={setDetail}
               onBookmark={bookmark}
+              collection={collection}
+              onCollectionChange={(next) => navigate("library", next)}
+              onStart={start}
             />
           ) : page === "study" ? (
             <Study
@@ -950,162 +939,6 @@ function Onboarding({
         </button>
       </form>
     </Modal>
-  );
-}
-
-function Library({
-  words,
-  state,
-  onDetail,
-  onBookmark,
-}: {
-  words: Word[];
-  state: LearnerState;
-  onDetail: (w: Word) => void;
-  onBookmark: (w: Word) => void;
-}) {
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All words");
-  const [level, setLevel] = useState("All levels");
-  const [saved, setSaved] = useState(false);
-  const [limit, setLimit] = useState(24);
-  const filtered = words.filter(
-    (w) =>
-      (category === "All words" || w.category === category) &&
-      (level === "All levels" || w.level === level) &&
-      (!saved || state.saved.includes(w.id)) &&
-      `${w.word} ${w.definition} ${w.collocations.join(" ")}`
-        .toLowerCase()
-        .includes(search.toLowerCase()),
-  );
-  useEffect(() => setLimit(24), [search, category, level, saved]);
-  return (
-    <>
-      <div className="page-heading">
-        <div>
-          <h1>
-            Build your repertoire<span>.</span>
-          </h1>
-          <p>Explore words, examples and the details that make them useful.</p>
-        </div>
-        <button
-          className={`button ${saved ? "primary" : ""}`}
-          onClick={() => setSaved(!saved)}
-        >
-          <Bookmark size={16} />
-          {saved ? "Showing saved words" : "Saved words"}{" "}
-          <span>{state.saved.length}</span>
-        </button>
-      </div>
-      <div className="library-toolbar">
-        <label className="search-box">
-          <Search size={18} />
-          <input
-            aria-label="Search vocabulary"
-            placeholder="Search words, meanings or phrases…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          {search && (
-            <button
-              className="icon-button"
-              aria-label="Clear search"
-              onClick={() => setSearch("")}
-            >
-              <X size={16} />
-            </button>
-          )}
-        </label>
-        <select
-          aria-label="Filter difficulty"
-          value={level}
-          onChange={(e) => setLevel(e.target.value)}
-        >
-          <option>All levels</option>
-          <option>Foundation</option>
-          <option>Developing</option>
-          <option>Advanced</option>
-        </select>
-      </div>
-      <div className="category-tabs" aria-label="Vocabulary categories">
-        {["All words", ...categories].map((c) => (
-          <button
-            className={category === c ? "selected" : ""}
-            aria-pressed={category === c}
-            key={c}
-            onClick={() => setCategory(c)}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
-      <div className="result-count">
-        <span>
-          {filtered.length} {filtered.length === 1 ? "word" : "words"} to
-          explore
-        </span>
-        <span>Australian English · Original essay examples</span>
-      </div>
-      {!filtered.length ? (
-        <div className="empty-state">
-          <Search size={28} />
-          <h2>No words found.</h2>
-          <p>Try another search or a different category.</p>
-          <button
-            className="button"
-            onClick={() => {
-              setSearch("");
-              setCategory("All words");
-              setLevel("All levels");
-              setSaved(false);
-            }}
-          >
-            Clear filters
-          </button>
-        </div>
-      ) : (
-        <div className="word-grid">
-          {filtered.slice(0, limit).map((w) => (
-            <article className="word-card" key={w.id}>
-              <div className="word-card-top">
-                <span className="word-level">{w.level}</span>
-                <button
-                  className={`icon-button ${state.saved.includes(w.id) ? "bookmarked" : ""}`}
-                  aria-label={`${state.saved.includes(w.id) ? "Unsave" : "Save"} ${w.word}`}
-                  onClick={() => onBookmark(w)}
-                >
-                  <Bookmark
-                    size={17}
-                    fill={state.saved.includes(w.id) ? "currentColor" : "none"}
-                  />
-                </button>
-              </div>
-              <button className="word-card-main" onClick={() => onDetail(w)}>
-                <h2>{w.word}</h2>
-                <span className="part-of-speech">{w.partOfSpeech}</span>
-                <p>{w.definition}</p>
-                <span className="word-card-bottom">
-                  <span>{w.category}</span>
-                  {state.progress[w.id] ? (
-                    <Check size={15} />
-                  ) : (
-                    <ArrowRight size={15} />
-                  )}
-                </span>
-              </button>
-            </article>
-          ))}
-        </div>
-      )}
-      {filtered.length > limit && (
-        <button
-          className="button load-more"
-          onClick={() => setLimit((n) => n + 24)}
-        >
-          Explore more words <ArrowDown size={16} />
-        </button>
-      )}
-    </>
   );
 }
 

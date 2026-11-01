@@ -56,6 +56,6 @@ test("skip link keeps the current route and focuses main content", async ({
   await page.getByRole("link", { name: "Skip to content" }).press("Enter");
   await expect(page.locator("main")).toBeFocused();
   await expect(
-    page.getByRole("heading", { name: "Build your repertoire." }),
+    page.getByRole("heading", { name: "Your word library." }),
   ).toBeVisible();
 });
