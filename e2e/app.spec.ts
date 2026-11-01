@@ -31,7 +31,6 @@ test("onboarding and context recall persist correct and incorrect review schedul
     const word = words.find((item) => item.word === headword)!;
     expect(word).toBeTruthy();
     studied.push(word.id);
-    await page.getByRole("button", { name: "Reveal meaning" }).click();
     await expect(page.locator(".study-card .definition")).toHaveText(
       word.definition,
     );
@@ -45,7 +44,14 @@ test("onboarding and context recall persist correct and incorrect review schedul
       .click();
     if (index === 1) {
       await expect(page.getByRole("status")).toContainText("The target form");
-      await page.getByRole("button", { name: "Practise again later" }).click();
+      await page.getByRole("button", { name: "Try once more" }).click();
+      await expect(page.getByLabel("Your answer")).toHaveValue("");
+      await page.getByLabel("Your answer").fill(word.answer);
+      await page
+        .getByRole("button", { name: "Check answer", exact: true })
+        .click();
+      await expect(page.getByRole("status")).toContainText("You corrected it");
+      await page.getByRole("button", { name: "Continue", exact: true }).click();
     } else {
       await expect(page.getByRole("status")).toContainText(
         "Exactly. A precise choice.",

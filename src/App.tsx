@@ -85,8 +85,9 @@ const practiceModes = [
   },
   {
     id: "repair",
-    title: "Refine the sentence",
-    description: "Spot imprecise language and improve how a sentence works.",
+    title: "Use words correctly",
+    description:
+      "See the target word and its meaning, then fix a specific usage mistake.",
     icon: CheckCheck,
   },
 ] as const;

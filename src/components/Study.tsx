@@ -5,7 +5,6 @@ import {
   Check,
   CheckCircle2,
   Lightbulb,
-  RotateCcw,
 } from "lucide-react";
 import type { LearnerState, Rating, Word } from "../types";
 import { getQueue, normaliseAnswer } from "../lib/learning";
@@ -23,14 +22,14 @@ export function Study({
 }) {
   const [queue] = useState(() => getQueue(words, state));
   const [index, setIndex] = useState(0);
-  const [stage, setStage] = useState<"recall" | "meaning" | "gap" | "result">(
-    () => (queue[0] && state.progress[queue[0].id] ? "gap" : "recall"),
+  const [stage, setStage] = useState<"meaning" | "gap" | "result">(() =>
+    queue[0] && state.progress[queue[0].id] ? "gap" : "meaning",
   );
   const [answer, setAnswer] = useState("");
   const [correct, setCorrect] = useState(false);
-  const [typed, setTyped] = useState(() =>
-    Boolean(queue[0] && state.progress[queue[0].id]),
-  );
+  const [typed, setTyped] = useState(true);
+  const [missed, setMissed] = useState(false);
+  const [assisted, setAssisted] = useState(false);
   const [score, setScore] = useState(0);
   const word = queue[index];
   const options = useMemo(() => {
@@ -58,16 +57,22 @@ export function Study({
     if (!answer.trim()) return;
     const match = normaliseAnswer(answer) === normaliseAnswer(word.answer);
     setCorrect(match);
+    if (!match) setMissed(true);
     setStage("result");
   }
   function next(rating: Rating) {
-    onRate(word.id, rating);
-    if (correct) setScore((s) => s + 1);
+    onRate(
+      word.id,
+      missed ? "again" : assisted && rating !== "again" ? "hard" : rating,
+    );
+    if (correct && !missed) setScore((s) => s + 1);
     const nextWord = queue[index + 1];
     const reviewing = Boolean(nextWord && state.progress[nextWord.id]);
     setIndex((i) => i + 1);
-    setStage(reviewing ? "gap" : "recall");
-    setTyped(reviewing);
+    setStage(reviewing ? "gap" : "meaning");
+    setTyped(true);
+    setMissed(false);
+    setAssisted(false);
     setCorrect(false);
     setAnswer("");
   }
@@ -83,7 +88,7 @@ export function Study({
         <h1>{queue.length ? "A few words further." : "You’re up to date."}</h1>
         <p>
           {queue.length
-            ? `You reviewed ${queue.length} words and recalled ${score} in context. They’ll return when it’s time to practise again.`
+            ? `You reviewed ${queue.length} words and answered ${score} correctly on the first attempt. They’ll return when it’s time to practise again.`
             : "Your next words will be ready tomorrow. You can still explore the library, write or practise typing."}
         </p>
         <div className="complete-stats">
@@ -95,7 +100,7 @@ export function Study({
             <strong>
               {queue.length ? Math.round((score / queue.length) * 100) : 0}%
             </strong>
-            <span>context recall</span>
+            <span>first-attempt accuracy</span>
           </div>
         </div>
         <button className="button primary" onClick={onExit}>
@@ -121,35 +126,45 @@ export function Study({
         <span style={{ width: `${(index / queue.length) * 100}%` }} />
       </div>
       <div className="session-steps">
-        <span
-          className={stage === "recall" || stage === "meaning" ? "active" : ""}
-        >
-          01 · Recall
+        <span className={stage === "meaning" ? "active" : ""}>
+          01 · Learn the meaning
         </span>
         <span className={stage === "gap" || stage === "result" ? "active" : ""}>
-          02 · In context
+          02 · Recall in context
         </span>
       </div>
+      <details
+        className="recall-hint"
+        onToggle={(event) => {
+          if (event.currentTarget.open && stage === "gap") setAssisted(true);
+        }}
+      >
+        <summary>
+          Words in this session · {index + 1} of {queue.length}
+        </summary>
+        <ol>
+          {queue.map((item, position) => (
+            <li
+              key={item.id}
+              aria-current={position === index ? "step" : undefined}
+            >
+              {item.word}
+              {position === index
+                ? " — practising now"
+                : position < index
+                  ? " — completed"
+                  : " — coming up"}
+            </li>
+          ))}
+        </ol>
+      </details>
       <article className="study-card">
         <span className="category-label">{word.category}</span>
         <h1>{stage === "gap" ? "Find the right word." : word.word}</h1>
         <p className="part-of-speech">
           {word.partOfSpeech} <span>·</span> {word.level}
         </p>
-        {stage === "recall" ? (
-          <>
-            <p className="study-prompt">
-              Before you turn the card, try to explain this word in your own
-              words. Where might it belong in an essay?
-            </p>
-            <button
-              className="button primary"
-              onClick={() => setStage("meaning")}
-            >
-              Reveal meaning <RotateCcw size={16} />
-            </button>
-          </>
-        ) : stage === "meaning" ? (
+        {stage === "meaning" ? (
           <>
             <p className="definition">{word.definition}</p>
             <blockquote>{word.example}</blockquote>
@@ -181,12 +196,17 @@ export function Study({
               ))}
             </p>
             <p className="muted small">
-              Retrieve the target word in the form that fits this sentence. This
-              activity checks this card’s vocabulary; other wording can also be
-              valid English.
+              Recall the word from this card and use the form that fits the
+              sentence. Open “Words in this session” above if you need to see
+              which word you’re practising.
             </p>
             {stage === "gap" && (
-              <details className="recall-hint">
+              <details
+                className="recall-hint"
+                onToggle={(event) => {
+                  if (event.currentTarget.open) setAssisted(true);
+                }}
+              >
                 <summary>Need a meaning hint?</summary>
                 <p>{word.definition}</p>
                 <p className="fine-print">
@@ -205,6 +225,7 @@ export function Study({
                         className={!typed ? "selected" : ""}
                         onClick={() => {
                           setTyped(false);
+                          setAssisted(true);
                           setAnswer("");
                         }}
                       >
@@ -272,9 +293,27 @@ export function Study({
                       sentence.
                     </p>
                   )}
-                  {correct ? (
+                  {correct && missed ? (
                     <>
-                      <p>How easily did it come to mind?</p>
+                      <p>
+                        You corrected it. This word will return soon to
+                        strengthen your recall.
+                      </p>
+                      <button
+                        type="button"
+                        className="button primary"
+                        onClick={() => next("again")}
+                      >
+                        Continue <ArrowRight size={16} />
+                      </button>
+                    </>
+                  ) : correct ? (
+                    <>
+                      <p>
+                        {assisted
+                          ? "You used support. This word will get a shorter review interval."
+                          : "How easily did it come to mind?"}
+                      </p>
                       <div className="rating-buttons">
                         <button
                           type="button"
@@ -300,13 +339,26 @@ export function Study({
                       </div>
                     </>
                   ) : (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={() => next("again")}
-                    >
-                      Practise again later <ArrowRight size={16} />
-                    </button>
+                    <div className="rating-buttons">
+                      <button
+                        type="button"
+                        className="button primary"
+                        onClick={() => {
+                          setAnswer("");
+                          setTyped(true);
+                          setStage("gap");
+                        }}
+                      >
+                        Try once more
+                      </button>
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={() => next("again")}
+                      >
+                        Practise again later <ArrowRight size={16} />
+                      </button>
+                    </div>
                   )}
                 </div>
               )}

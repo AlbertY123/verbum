@@ -7,6 +7,29 @@ const collection = (page: Page, name: string) =>
     .getByRole("group", { name: "Learning status" })
     .getByRole("button", { name: new RegExp("^" + name + " ") });
 
+test("flashcards follow the selected words and do not record reviews", async ({
+  page,
+}) => {
+  await page.goto("/#library?collection=to-learn");
+  await page.getByLabel("Search vocabulary").fill("elucidate");
+  await page
+    .getByRole("button", { name: "Practise these words with flashcards" })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "elucidate", exact: true }),
+  ).toBeVisible();
+  await expect(page.locator(".definition")).toHaveCount(0);
+  await page.getByRole("button", { name: "Show meaning" }).click();
+  await expect(page.locator(".definition")).toHaveText(
+    words.find((word) => word.word === "elucidate")!.definition,
+  );
+  await page.getByRole("button", { name: "Hide meaning" }).click();
+  await expect(page.locator(".definition")).toHaveCount(0);
+  await page.getByRole("button", { name: "Finish flashcards" }).click();
+  await expect(collection(page, "Learned")).toHaveText("Learned0");
+  await expect(page.getByLabel("Search vocabulary")).toHaveValue("elucidate");
+});
+
 test("home collections lead to learning, and a first practice moves the word into Learned", async ({
   page,
 }) => {
@@ -24,7 +47,6 @@ test("home collections lead to learning, and a first practice moves the word int
     .click();
   await page.getByRole("dialog").getByRole("button", { name: /begin/ }).click();
   const headword = await page.locator(".study-card h1").innerText();
-  await page.getByRole("button", { name: "Reveal meaning" }).click();
   await page.getByRole("button", { name: "Try it in context" }).click();
   await page.getByRole("button", { name: "Type it from memory" }).click();
   await page.getByLabel("Your answer").fill("not-the-answer");

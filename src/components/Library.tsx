@@ -27,6 +27,9 @@ export function Library({
   const [level, setLevel] = useState("All levels");
   const [saved, setSaved] = useState(false);
   const [limit, setLimit] = useState(24);
+  const [flashcards, setFlashcards] = useState<Word[] | null>(null);
+  const [card, setCard] = useState(0);
+  const [flipped, setFlipped] = useState(false);
   const learned = words.filter((word) => state.progress[word.id]).length;
   const toLearn = words.length - learned;
   const savedCount = words.filter((word) =>
@@ -57,6 +60,76 @@ export function Library({
     { id: "to-learn", label: "To learn", count: toLearn },
     { id: "learned", label: "Learned", count: learned },
   ] as const;
+  if (flashcards) {
+    const current = flashcards[card];
+    return (
+      <section className="study-session" aria-label="Vocabulary flashcards">
+        <div className="session-top">
+          <button className="text-button" onClick={() => setFlashcards(null)}>
+            Back to word library
+          </button>
+          <span>
+            Card {card + 1} of {flashcards.length}
+          </span>
+        </div>
+        <p>
+          Flashcards ·{" "}
+          {collection === "learned"
+            ? "Learned words"
+            : collection === "to-learn"
+              ? "Words to learn"
+              : "All words"}
+          . Flipping a card does not change your learning progress.
+        </p>
+        <article className="study-card">
+          <span className="category-label">Practising this word</span>
+          <h1>{current.word}</h1>
+          <p className="part-of-speech">{current.partOfSpeech}</p>
+          {flipped ? (
+            <div role="status">
+              <p className="definition">{current.definition}</p>
+              <blockquote>{current.example}</blockquote>
+              <p className="usage-note">{current.caution}</p>
+            </div>
+          ) : (
+            <p className="study-prompt">
+              Say the meaning in your own words, then turn the card to check.
+            </p>
+          )}
+          <button
+            className="button primary"
+            onClick={() => setFlipped(!flipped)}
+          >
+            {flipped ? "Hide meaning" : "Show meaning"}
+          </button>
+        </article>
+        <div className="session-top">
+          <button
+            className="button"
+            disabled={card === 0}
+            onClick={() => {
+              setCard(card - 1);
+              setFlipped(false);
+            }}
+          >
+            Previous word
+          </button>
+          <button
+            className="button"
+            onClick={() => {
+              if (card + 1 === flashcards.length) setFlashcards(null);
+              else {
+                setCard(card + 1);
+                setFlipped(false);
+              }
+            }}
+          >
+            {card + 1 === flashcards.length ? "Finish flashcards" : "Next word"}
+          </button>
+        </div>
+      </section>
+    );
+  }
   return (
     <>
       <div className="page-heading">
@@ -167,6 +240,17 @@ export function Library({
           {filtered.length} {filtered.length === 1 ? "word" : "words"}
           {saved ? " · saved" : ""}
         </span>
+        <button
+          className="text-button"
+          disabled={!filtered.length}
+          onClick={() => {
+            setFlashcards([...filtered]);
+            setCard(0);
+            setFlipped(false);
+          }}
+        >
+          Practise these words with flashcards
+        </button>
       </div>
       {collection === "learned" && learned === 0 ? (
         <div className="empty-state">

@@ -963,6 +963,9 @@ footer button {
 }
 .result-count {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
   justify-content: space-between;
   font-size: 11px;
   color: var(--muted);

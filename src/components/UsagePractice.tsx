@@ -6,6 +6,7 @@ import {
   type UsageMode,
 } from "../data/usage-exercises";
 import "./usage-practice.css";
+import { words } from "../data/words";
 
 interface UsagePracticeProps {
   mode: UsageMode;
@@ -41,7 +42,8 @@ function UsageSession({ mode, onComplete, onExit }: UsagePracticeProps) {
   const question = session[index];
   const isCorrect = selected === question.correctIndex;
   const score = answers.filter(Boolean).length;
-  const title = mode === "choice" ? "Word choice" : "Sentence repair";
+  const title = mode === "choice" ? "Word choice" : "Use words correctly";
+  const targetWord = words.find((word) => word.id === question.wordId);
 
   useEffect(() => {
     if (checked) feedbackRef.current?.focus();
@@ -150,7 +152,7 @@ function UsageSession({ mode, onComplete, onExit }: UsagePracticeProps) {
           <p>
             {mode === "choice"
               ? "Similar words do different work. Let the evidence guide your choice."
-              : "Spot an awkward pattern or an unsupported claim, then make a precise repair."}
+              : "Learn one word’s usage, then choose the sentence that uses it accurately. This is about meaning, not making sentences sound fancy."}
           </p>
         </div>
       </div>
@@ -169,6 +171,16 @@ function UsageSession({ mode, onComplete, onExit }: UsagePracticeProps) {
         max={session.length}
       />
       <article className="panel usage-question" data-exercise-id={question.id}>
+        {mode === "repair" && targetWord && (
+          <div className="usage-feedback">
+            <span className="eyebrow">WORD YOU’RE PRACTISING</span>
+            <h2>{targetWord.word}</h2>
+            <p>{targetWord.definition}</p>
+            <p>
+              <strong>Your task:</strong> {question.prompt}
+            </p>
+          </div>
+        )}
         <span className="eyebrow">
           THE CONTEXT · ORIGINAL FICTIONAL EXAMPLE
         </span>
@@ -176,7 +188,7 @@ function UsageSession({ mode, onComplete, onExit }: UsagePracticeProps) {
         <span className="eyebrow">
           {mode === "choice"
             ? "COMPLETE THE ANALYSIS"
-            : "THE SENTENCE TO REPAIR"}
+            : "STUDENT DRAFT · CONTAINS A USAGE MISTAKE"}
         </span>
         <blockquote
           className={
@@ -204,7 +216,9 @@ function UsageSession({ mode, onComplete, onExit }: UsagePracticeProps) {
           tabIndex={-1}
           className="usage-prompt"
         >
-          {question.prompt}
+          {mode === "repair"
+            ? "Which version fixes that mistake and keeps the intended meaning?"
+            : question.prompt}
         </h2>
         <div
           className="usage-options"
