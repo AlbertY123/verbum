@@ -10,7 +10,12 @@ Without these variables Verbum remains usable on the current browser, but accoun
 
 ## 2. Apply the schema
 
-In the project's SQL Editor run `supabase/migrations/202611010001_learner_state.sql` once. The transaction creates:
+In the project's SQL Editor apply these migrations in order, skipping any already applied:
+
+1. `supabase/migrations/202611010001_learner_state.sql`
+2. `supabase/migrations/202611010002_learner_state_privileges.sql`
+
+The first migration creates:
 
 - One `learner_state` row per authenticated user, containing state JSON, a revision and a server timestamp.
 - Row-level policies allowing each user to access only their own row; no anonymous database access.
@@ -18,7 +23,9 @@ In the project's SQL Editor run `supabase/migrations/202611010001_learner_state.
 - `save_learner_state(p_user_id, p_state, p_expected_revision)`, which serialises writes and rejects stale revisions. The client merges concurrent progress and retries rather than silently overwriting another device.
 - `delete_own_account(p_user_id)`, an authenticated RPC that can delete only the caller's account. Both RPCs verify that the browser's expected account matches the actual authenticated caller.
 
-No service-role key or custom paid server is required. The migration is versioned; do not rerun an already-applied migration blindly. Apply future migrations in order. [Supabase's row-level security guide](https://supabase.com/docs/guides/database/postgres/row-level-security) explains the policy mechanism.
+The second migration removes surplus default table privileges from authenticated users, including `TRUNCATE`, `REFERENCES` and `TRIGGER`, and grants only `SELECT` and `DELETE`. Existing installations that already applied the first migration need only the second.
+
+No service-role key or custom paid server is required. Migrations are versioned; do not rerun an already-applied migration blindly. Apply future migrations in order. [Supabase's row-level security guide](https://supabase.com/docs/guides/database/postgres/row-level-security) explains the policy mechanism.
 
 Direct inserts/updates are not granted to browser clients; writes use the revision-checked RPC. Conflicting word schedules use the most recently reviewed record; writing entries and custom words are merged by ID. Daily counters use the larger recorded value, so concurrent offline activity can be conservatively undercounted rather than double-counted. Preferences and bookmarks use the most recently modified snapshot. This is progress synchronisation, not real-time collaborative editing.
 

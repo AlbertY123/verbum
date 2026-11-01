@@ -40,7 +40,7 @@ The production bundle is in `dist/`. `npm run preview` serves it locally. A GitH
 
 ## Configure accounts and deploy at $0
 
-1. Create a **Free** Supabase project. Run [the migration](supabase/migrations/202611010001_learner_state.sql) once in its SQL editor. It creates the private data table, row-level policies, revision-checked save function and account deletion function.
+1. Create a **Free** Supabase project. In its SQL editor apply [the schema migration](supabase/migrations/202611010001_learner_state.sql), then [the privilege migration](supabase/migrations/202611010002_learner_state_privileges.sql), skipping any already applied. The first creates the private data table, row-level policies, revision-checked save function and account deletion function; the second restricts authenticated table privileges to `SELECT` and `DELETE`.
 2. Enable Google as an auth provider. Create a Google OAuth web client and use the exact callback URL supplied by Supabase. Add your published app URL to Supabase’s Site URL and redirect allowlist. [Detailed backend instructions](docs/BACKEND.md) include the Google and optional email setup.
 3. In Cloudflare, create a **Pages** project connected to this GitHub repository. Select the `main` branch, build command `npm run build`, output directory `dist`, and Node version `24` (`NODE_VERSION=24`). Use the free `*.pages.dev` address; a custom domain is optional and may cost money.
 4. Add these build environment variables to the Pages project, then deploy:

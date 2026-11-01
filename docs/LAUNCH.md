@@ -1,16 +1,18 @@
 # Live launch checks
 
-The repository contains a working frontend, backend migration and automated checks. A live launch is complete only after the external services below are configured and verified. Do not describe unconfigured account sign-in or untested provider calls as verified.
+The repository contains a working frontend, backend migrations and automated checks. A live launch is complete only after the external services below are configured and verified. Do not describe unconfigured account sign-in or untested provider calls as verified.
 
 ## Required operator setup
 
-- [ ] Create Supabase on the Free plan; choose a suitable region.
-- [ ] Run `supabase/migrations/202611010001_learner_state.sql` once.
-- [ ] Configure Google OAuth using `docs/BACKEND.md`; keep email disabled until custom SMTP works.
-- [ ] Create Cloudflare Pages from this repository, build `npm run build`, output `dist`, Node 24.
-- [ ] Supply the public Supabase environment variables; never deploy a service-role key or owner AI key.
-- [ ] Configure the final production URL and exact auth redirect allowlist. Remove unnecessary preview/local redirects before broad launch.
-- [ ] Check the deployment sends the headers in `public/_headers`, serves HTTPS and returns the SPA on reload.
+- [x] Create Supabase on the Free plan; choose a suitable region.
+- [x] Apply `supabase/migrations/202611010001_learner_state.sql`, then `supabase/migrations/202611010002_learner_state_privileges.sql`, skipping migrations already applied. The second restricts authenticated table privileges to `SELECT` and `DELETE`.
+- [x] Configure Google OAuth using `docs/BACKEND.md`; keep email disabled until custom SMTP works.
+- [x] Create Cloudflare Pages from this repository, build `npm run build`, output `dist`, Node 24.
+- [x] Supply the public Supabase environment variables; never deploy a service-role key or owner AI key.
+- [x] Configure the final production URL and exact auth redirect allowlist. Remove unnecessary preview/local redirects before broad launch.
+- [x] Check the deployment sends the headers in `public/_headers`, serves HTTPS and returns the SPA on reload.
+
+Configuration above was verified on 1 November 2026. See [deployment evidence and outstanding live checks](DEPLOYMENT-STATUS.md).
 
 Cloudflare Pages supplies [SPA fallback by default](https://developers.cloudflare.com/pages/configuration/serving-pages/#single-page-application-spa-rendering) when there is no top-level `404.html`. This project uses hash routes and does not need a catch-all rewrite that could interfere with static assets.
 
