@@ -1,15 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, RotateCcw } from "lucide-react";
-import {
-  USAGE_SESSION_LENGTH,
-  usageExercises,
-  type UsageMode,
-} from "../data/usage-exercises";
+import { type UsageMode } from "../data/usage-exercises";
 import "./usage-practice.css";
-import { words } from "../data/words";
+import type { Word } from "../types";
+import {
+  buildUsageBank,
+  readUsageDeck,
+  saveUsageDeck,
+  usageSession,
+} from "../lib/usage-bank";
 
 interface UsagePracticeProps {
   mode: UsageMode;
+  words: Word[];
   onComplete: () => void;
   onExit: () => void;
 }
@@ -19,12 +22,10 @@ export function UsagePractice(props: UsagePracticeProps) {
   return <UsageSession key={props.mode} {...props} />;
 }
 
-function UsageSession({ mode, onComplete, onExit }: UsagePracticeProps) {
-  const pool = usageExercises[mode];
-  const [setNumber, setSetNumber] = useState(
-    () =>
-      Math.floor(Date.now() / 86400000) %
-      Math.ceil(pool.length / USAGE_SESSION_LENGTH),
+function UsageSession({ mode, words, onComplete, onExit }: UsagePracticeProps) {
+  const pool = useMemo(() => buildUsageBank(words, mode), [words, mode]);
+  const [round, setRound] = useState(() =>
+    usageSession(pool, readUsageDeck(mode)),
   );
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -32,18 +33,19 @@ function UsageSession({ mode, onComplete, onExit }: UsagePracticeProps) {
   const [answers, setAnswers] = useState<boolean[]>([]);
   const [finished, setFinished] = useState(false);
   const completionRecorded = useRef(false);
+  const deckAdvanced = useRef(false);
   const feedbackRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
-  const session = Array.from(
-    { length: USAGE_SESSION_LENGTH },
-    (_, offset) =>
-      pool[(setNumber * USAGE_SESSION_LENGTH + offset) % pool.length],
-  );
+  const session = round.questions;
   const question = session[index];
-  const isCorrect = selected === question.correctIndex;
+  const isCorrect = selected === question?.correctIndex;
   const score = answers.filter(Boolean).length;
   const title = mode === "choice" ? "Word choice" : "Use words correctly";
-  const targetWord = words.find((word) => word.id === question.wordId);
+  const targetWord = words.find((word) => word.id === question?.wordId);
+
+  useEffect(() => {
+    saveUsageDeck(mode, round.deck);
+  }, [mode, round]);
 
   useEffect(() => {
     if (checked) feedbackRef.current?.focus();
@@ -62,6 +64,10 @@ function UsageSession({ mode, onComplete, onExit }: UsagePracticeProps) {
     if (!checked || finished) return;
     if (index === session.length - 1) {
       setFinished(true);
+      if (!deckAdvanced.current) {
+        deckAdvanced.current = true;
+        saveUsageDeck(mode, round.nextDeck);
+      }
       if (!completionRecorded.current) {
         completionRecorded.current = true;
         onComplete();
@@ -74,11 +80,10 @@ function UsageSession({ mode, onComplete, onExit }: UsagePracticeProps) {
   }
 
   function restart(anotherSet: boolean) {
-    if (anotherSet)
-      setSetNumber(
-        (previous) =>
-          (previous + 1) % Math.ceil(pool.length / USAGE_SESSION_LENGTH),
-      );
+    if (anotherSet) {
+      setRound(usageSession(pool, round.nextDeck));
+      deckAdvanced.current = false;
+    }
     completionRecorded.current = false;
     setIndex(0);
     setSelected(null);
@@ -86,6 +91,16 @@ function UsageSession({ mode, onComplete, onExit }: UsagePracticeProps) {
     setAnswers([]);
     setFinished(false);
   }
+
+  if (!question)
+    return (
+      <section className="usage-practice">
+        <h1>No words to practise yet.</h1>
+        <button className="button" onClick={onExit}>
+          Back to practice
+        </button>
+      </section>
+    );
 
   if (finished) {
     return (
@@ -188,7 +203,9 @@ function UsageSession({ mode, onComplete, onExit }: UsagePracticeProps) {
         <span className="eyebrow">
           {mode === "choice"
             ? "COMPLETE THE ANALYSIS"
-            : "STUDENT DRAFT · CONTAINS A USAGE MISTAKE"}
+            : question.kind === "bank"
+              ? "STUDENT DRAFT · REPLACE THE INSERTED WORD"
+              : "STUDENT DRAFT · CONTAINS A USAGE MISTAKE"}
         </span>
         <blockquote
           className={
@@ -217,7 +234,9 @@ function UsageSession({ mode, onComplete, onExit }: UsagePracticeProps) {
           className="usage-prompt"
         >
           {mode === "repair"
-            ? "Which version fixes that mistake and keeps the intended meaning?"
+            ? question.kind === "bank"
+              ? "Which revision uses the target word in the model sentence?"
+              : "Which version fixes that mistake and keeps the intended meaning?"
             : question.prompt}
         </h2>
         <div
@@ -284,7 +303,11 @@ function UsageSession({ mode, onComplete, onExit }: UsagePracticeProps) {
               )}
             </div>
             <details className="usage-comparison">
-              <summary>Compare all four options</summary>
+              <summary>
+                {question.options.length === 4
+                  ? "Compare all four options"
+                  : "Compare the options"}
+              </summary>
               <ol>
                 {question.options.map((option, position) => (
                   <li key={option.text}>

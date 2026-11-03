@@ -607,6 +607,7 @@ export default function App() {
             <UsagePractice
               key={page}
               mode={page}
+              words={words}
               onComplete={() => update((s) => recordUsage(s, page))}
               onExit={() => navigate("practice")}
             />

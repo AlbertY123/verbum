@@ -1,11 +1,30 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { usageExercises, type UsageMode } from "../src/data/usage-exercises";
+import { type UsageMode } from "../src/data/usage-exercises";
+import { buildUsageBank } from "../src/lib/usage-bank";
+import { words } from "../src/data/words";
+import { emptyState } from "../src/lib/learning";
 
 for (const mode of ["choice", "repair"] as const) {
   test(`${mode} teaches distinctions, retains first attempts and completes a five-question session`, async ({
     page,
   }) => {
+    const pool = buildUsageBank(words, mode);
+    // Exercise newly covered words first, independent of random deck order.
+    const ids = [
+      ...pool.filter((q) => q.kind === "bank"),
+      ...pool.filter((q) => !q.kind),
+    ].map((q) => q.id);
+    await page.addInitScript(
+      ({ mode, ids }) => {
+        if (!localStorage.getItem(`verbum.usage-deck.v1.${mode}`))
+          localStorage.setItem(
+            `verbum.usage-deck.v1.${mode}`,
+            JSON.stringify({ ids, completed: 0 }),
+          );
+      },
+      { mode, ids },
+    );
     await page.goto(`/#${mode}`);
     const recordedSessions = () =>
       page.evaluate((activityKey) => {
@@ -35,7 +54,7 @@ for (const mode of ["choice", "repair"] as const) {
       const id = await main
         .locator("[data-exercise-id]")
         .getAttribute("data-exercise-id");
-      const question = usageExercises[mode].find((item) => item.id === id)!;
+      const question = pool.find((item) => item.id === id)!;
       expect(question).toBeTruthy();
       const answer =
         index === 0 ? (question.correctIndex + 1) % 4 : question.correctIndex;
@@ -93,6 +112,16 @@ for (const mode of ["choice", "repair"] as const) {
     );
     await expect(check).toBeDisabled();
     expect(await recordedSessions()).toBe(1);
+    // Retrying does not rewind the saved deck. A new visit starts at the next set.
+    await page.reload();
+    await expect(main.locator("[data-exercise-id]")).toHaveAttribute(
+      "data-exercise-id",
+      ids[5],
+    );
+    const saved = await page.evaluate(() =>
+      JSON.parse(localStorage.getItem("verbum.learner.v1.guest")!),
+    );
+    expect(Object.keys(saved.progress)).toHaveLength(0);
   });
 }
 
@@ -121,6 +150,61 @@ test("usage activities work with keyboard input and fit mobile screens", async (
 });
 
 for (const mode of ["choice", "repair"] as UsageMode[]) {
+  test(`${mode} includes personal vocabulary with usable mobile feedback`, async ({
+    page,
+  }) => {
+    const personal = {
+      ...words[0],
+      id: "personal-expression",
+      word: "personal expression",
+      partOfSpeech: "phrase" as const,
+      definition:
+        "An expression used with a particular meaning by an individual.",
+      gap: "The narrator's ___ reveals her distinctive way of seeing the world.",
+      answer: "personal expression",
+      caution: "Explain the expression's meaning in its particular context.",
+    };
+    const pool = buildUsageBank([...words, personal], mode);
+    const question = pool.find((q) => q.wordId === personal.id)!;
+    const ids = [
+      question.id,
+      ...pool.filter((q) => q.id !== question.id).map((q) => q.id),
+    ];
+    await page.addInitScript(
+      ({ mode, ids, state }) => {
+        localStorage.setItem("verbum.learner.v1.guest", JSON.stringify(state));
+        localStorage.setItem(
+          `verbum.usage-deck.v1.${mode}`,
+          JSON.stringify({ ids, completed: 0 }),
+        );
+      },
+      { mode, ids, state: { ...emptyState(), customWords: [personal] } },
+    );
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`/#${mode}`);
+    await expect(page.locator("[data-exercise-id]")).toHaveAttribute(
+      "data-exercise-id",
+      question.id,
+    );
+    await page.locator(".usage-option").nth(question.correctIndex).click();
+    await page
+      .getByRole("button", {
+        name: mode === "choice" ? "Check choice" : "Check repair",
+        exact: true,
+      })
+      .click();
+    await expect(page.getByRole("status")).toContainText(personal.caution);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
+    await page.screenshot({
+      path: `artifacts/${mode}-full-bank-mobile.png`,
+      fullPage: true,
+    });
+  });
+
   test(`${mode} question and feedback have no detected accessibility violations`, async ({
     page,
   }) => {

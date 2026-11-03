@@ -10,7 +10,7 @@
 - Searchable and filterable library with bookmarks and detailed word cards.
 - Guided writing using fictional source material, an explicit analytical task, sentence stems, a self-assessment checklist and a persistent writing journal.
 - Inline sentence typing with a moving caret, in-place error feedback, accuracy/speed feedback and a comprehension check before recording practice.
-- Word choice and sentence repair: 40 authored questions teach precise meaning, appropriate claims and natural collocations through five-question sessions with explanations for every option.
+- Word choice and sentence repair draw from all 600 words plus personal vocabulary. Existing authored questions are retained; other entries use their taught definition, retrieval sentence and usage guidance. Each mode shuffles its own deck, offers up to five questions per session, and saves completed sets on the device so all words are visited before repeating. Retry keeps the same questions. Practice counts towards activity and streaks; the homepage learning session controls the Learned collection.
 - A single Practice hub groups guided writing, sentence typing, word choice and sentence repair; completed sessions count towards daily activity and streaks.
 - Real progress statistics, local-date streaks, activity calendar and category progress.
 - Guest/device mode, Supabase Google sign-in, account sync, progress backup/import and permanent account deletion. Email/password and recovery are available only when the operator enables production email delivery.

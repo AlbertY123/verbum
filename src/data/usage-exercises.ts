@@ -6,6 +6,7 @@ export interface UsageOption {
 }
 
 export interface UsageQuestion {
+  kind?: "bank";
   id: string;
   wordId: string;
   prompt: string;
